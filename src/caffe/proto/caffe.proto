@@ -888,13 +888,13 @@ message PoolingParameter {
   optional PoolMethod pool = 1 [default = MAX]; // The pooling method
   // Pad, kernel size, and stride are all given as a single value for equal
   // dimensions in height and width or as Y, X pairs.
-  optional uint32 pad = 4 [default = 0]; // The padding size (equal in Y, X)
+  repeated uint32 pad = 4; // The padding size (equal in Y, X), default 0
   optional uint32 pad_h = 9 [default = 0]; // The padding height
   optional uint32 pad_w = 10 [default = 0]; // The padding width
-  optional uint32 kernel_size = 2; // The kernel size (square)
+  repeated uint32 kernel_size = 2; // The kernel size (square)
   optional uint32 kernel_h = 5; // The kernel height
   optional uint32 kernel_w = 6; // The kernel width
-  optional uint32 stride = 3 [default = 1]; // The stride (equal in Y, X)
+  repeated uint32 stride = 3; // The stride (equal in Y, X), default 1
   optional uint32 stride_h = 7; // The stride height
   optional uint32 stride_w = 8; // The stride width
   enum Engine {
@@ -906,6 +906,12 @@ message PoolingParameter {
   // If global_pooling then it will pool over the size of the bottom by doing
   // kernel_h = bottom->height and kernel_w = bottom->width
   optional bool global_pooling = 12 [default = false];
+
+  // adopted from: https://github.com/BVLC/caffe/blob/opencl/src/caffe/proto/caffe.proto
+  // support dilated pooling
+  repeated uint32 dilation = 7777; // The kernel stride, default 1
+  // support ND-pooling-related
+  optional int64 axis = 7778 [default = 1];
 }
 
 message PowerParameter {

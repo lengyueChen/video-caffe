@@ -53,6 +53,18 @@ class PoolingLayer : public Layer<Dtype> {
   bool global_pooling_;
   Blob<Dtype> rand_idx_;
   Blob<int> max_idx_;
+
+  // Support ND pooling
+  Blob<int> kernel_shape_;
+  Blob<int> ext_kernel_shape_;
+  Blob<int> stride_;
+  Blob<int> pad_;
+  Blob<int> dilation_;
+  Blob<int> size_;
+  Blob<int> pooled_size_;
+
+  int channel_axis_;
+  int num_spatial_axes_;
 };
 
 }  // namespace caffe

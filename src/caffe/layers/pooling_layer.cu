@@ -153,7 +153,178 @@ __global__ void StoPoolForwardTest(const int nthreads,
   }
 }
 
+template<typename Dtype>
+__global__ void MaxPoolNDForward(const int nthreads, const int num_axes,
+                                 const Dtype* bottom_data,
+                                 const int channels, const int* size,
+                                 const int* pooled_size,
+                                 const int* kernel_size,
+                                 const int* ext_kernel_size,
+                                 const int* stride, const int* dilation,
+                                 const int* pad, Dtype* top_data,
+                                 int* mask, Dtype* top_mask) {
+  int d_idx[6];  // NOLINT(runtime/arrays)
+  int d_start[6];  // NOLINT(runtime/arrays)
+  int d_end[6];  // NOLINT(runtime/arrays)
+  int d_iter[6];  // NOLINT(runtime/arrays)
+  int i;
 
+  CUDA_KERNEL_LOOP(index, nthreads) {
+    int offset = 1;
+    int num = index;
+    for (i = num_axes - 1; i >= 0; --i) {
+      d_idx[i] = num % pooled_size[i];
+      d_start[i] = d_idx[i] * stride[i] - pad[i];
+      d_end[i] = min(d_start[i] + ext_kernel_size[i], size[i]);
+      d_start[i] = max(d_start[i], 0);
+      num /= pooled_size[i];
+      offset *= size[i];
+      d_iter[i] = d_start[i];
+
+      if (d_start[i] >= d_end[i]) {
+        top_data[index] = -FLT_MAX;
+        if (mask) {
+          mask[index] = -1;
+        } else {
+          top_mask[index] = -1;
+        }
+        return;
+      }
+    }
+    int chan = num % channels;
+    num /= channels;
+    offset *= (num * channels + chan);
+
+    Dtype maxval = -FLT_MAX;
+    int maxidx = -1;
+    int final_offset = 0;
+
+    bool incremented;
+    do {
+      final_offset = offset;
+      int size_prod = 1;
+      for (i = num_axes - 1; i >= 0; --i) {
+        final_offset += d_iter[i] * size_prod;
+        size_prod *= size[i];
+      }
+
+      if (bottom_data[final_offset] > maxval) {
+        maxidx = final_offset;
+        maxval = bottom_data[maxidx];
+      }
+
+      incremented = false;
+      for (i = num_axes - 1; i >= 0; --i) {
+        if (d_iter[i] >= d_end[i] - dilation[i]) {
+          d_iter[i] = d_start[i];
+        } else {
+          d_iter[i] += dilation[i];
+          incremented = true;
+          break;
+        }
+      }
+    } while (incremented);
+
+    top_data[index] = maxval;
+    if (mask) {
+      mask[index] = maxidx;
+    } else {
+      top_mask[index] = maxidx;
+    }
+  }
+}
+
+template<typename Dtype>
+__global__ void MaxPoolNDBackward(const int nthreads, const int num_axes,
+                                  const Dtype* top_diff, const int* mask,
+                                  const Dtype* top_mask, const int channels,
+                                  const int* size, const int* pooled_size,
+                                  const int* kernel_size,
+                                  const int* ext_kernel_size,
+                                  const int* stride, const int* dilation,
+                                  const int* pad, Dtype* bottom_diff) {
+  int d_idx[6];  // NOLINT(runtime/arrays)
+  int d_start[6];  // NOLINT(runtime/arrays)
+  int d_end[6];  // NOLINT(runtime/arrays)
+  int d_iter[6];  // NOLINT(runtime/arrays)
+  int i;
+
+  CUDA_KERNEL_LOOP(index, nthreads) {
+    // find out the local index
+    // find out the local offset
+    int offset = 1;
+    int num = index;
+    for (i = num_axes - 1; i >= 0; --i) {
+      d_idx[i] = num % size[i];
+      if (dilation[i] > 1) {
+        d_start[i] =
+            (d_idx[i] < ext_kernel_size[i]) ?
+                d_idx[i] % dilation[i] : (d_idx[i] - ext_kernel_size[i]) + 1;
+        d_end[i] =
+            (d_idx[i] >= pooled_size[i]) ?
+                (pooled_size[i] - 1)
+                    - (pooled_size[i] - 1 - d_start[i]) % dilation[i] :
+                d_idx[i];
+      } else {
+        d_start[i] =
+            (d_idx[i] + pad[i] < kernel_size[i]) ?
+                0 : (d_idx[i] + pad[i] - kernel_size[i]) / stride[i] + 1;
+        d_end[i] = min((d_idx[i] + pad[i]) / stride[i] + 1, pooled_size[i]);
+      }
+      num /= size[i];
+      offset *= pooled_size[i];
+      d_iter[i] = d_start[i];
+
+      if (d_start[i] > d_end[i]) {
+        bottom_diff[index] = 0;
+        return;
+      }
+    }
+
+    int chan = num % channels;
+    num /= channels;
+    offset *= (num * channels + chan);
+
+    Dtype gradient = 0;
+    int final_offset = 0;
+    int im_offset = 0;
+
+    bool incremented;
+    do {
+      final_offset = offset;
+      im_offset = 0;
+      int size_prod = 1;
+      int pooled_size_prod = 1;
+      for (i = num_axes - 1; i >= 0; --i) {
+        final_offset += d_iter[i] * pooled_size_prod;
+        im_offset += d_idx[i] * size_prod;
+        size_prod *= size[i];
+        pooled_size_prod *= pooled_size[i];
+      }
+      if (mask) {
+        if (mask[final_offset] == im_offset) {
+          gradient += top_diff[final_offset];
+        }
+      } else {
+        if (top_mask[final_offset] == im_offset) {
+          gradient += top_diff[final_offset];
+        }
+      }
+
+      incremented = false;
+      for (i = num_axes - 1; i >= 0; --i) {
+        if (d_iter[i] > d_end[i] - dilation[i]) {
+          d_iter[i] = d_start[i];
+        } else {
+          d_iter[i] += dilation[i];
+          incremented = true;
+          break;
+        }
+      }
+    } while (incremented);
+    bottom_diff[index] = gradient;
+  }
+}
 template <typename Dtype>
 void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -164,50 +335,89 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   const bool use_top_mask = top.size() > 1;
   int* mask = NULL;
   Dtype* top_mask = NULL;
-  switch (this->layer_param_.pooling_param().pool()) {
-  case PoolingParameter_PoolMethod_MAX:
-    if (use_top_mask) {
-      top_mask = top[1]->mutable_gpu_data();
-    } else {
-      mask = max_idx_.mutable_gpu_data();
-    }
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    MaxPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        count, bottom_data, bottom[0]->num(), channels_,
-        height_, width_, pooled_height_, pooled_width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data,
-        mask, top_mask);
-    break;
-  case PoolingParameter_PoolMethod_AVE:
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        count, bottom_data, bottom[0]->num(), channels_,
-        height_, width_, pooled_height_, pooled_width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data);
-    break;
-  case PoolingParameter_PoolMethod_STOCHASTIC:
-    if (this->phase_ == TRAIN) {
-      // We need to create the random index as well.
-      caffe_gpu_rng_uniform(count, Dtype(0), Dtype(1),
-                            rand_idx_.mutable_gpu_data());
+  if (num_spatial_axes_ == 2) {
+    int kernel_h_ = kernel_shape_.cpu_data()[0];
+    int kernel_w_ = kernel_shape_.cpu_data()[1];
+    int stride_h_ = stride_.cpu_data()[0];
+    int stride_w_ = stride_.cpu_data()[1];
+    int pad_h_ = pad_.cpu_data()[0];
+    int pad_w_ = pad_.cpu_data()[1];
+    int dilation_h_ = dilation_.cpu_data()[0];
+    int dilation_w_ = dilation_.cpu_data()[1];
+    int height_ = size_.cpu_data()[0];
+    int width_ = size_.cpu_data()[1];
+    int pooled_height_ = pooled_size_.cpu_data()[0];
+    int pooled_width_ = pooled_size_.cpu_data()[1];
+    int ext_kernel_h = ext_kernel_shape_.cpu_data()[0];
+    int ext_kernel_w = ext_kernel_shape_.cpu_data()[0];
+
+    switch (this->layer_param_.pooling_param().pool()) {
+    case PoolingParameter_PoolMethod_MAX:
+      if (use_top_mask) {
+        top_mask = top[1]->mutable_gpu_data();
+      } else {
+        mask = max_idx_.mutable_gpu_data();
+      }
       // NOLINT_NEXT_LINE(whitespace/operators)
-      StoPoolForwardTrain<Dtype><<<CAFFE_GET_BLOCKS(count),
-                                   CAFFE_CUDA_NUM_THREADS>>>(
+        MaxPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+            count, bottom_data, bottom[0]->num(), channels_,
+            height_, width_, pooled_height_, pooled_width_, kernel_h_,
+            kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data,
+            mask, top_mask);
+      break;
+    case PoolingParameter_PoolMethod_AVE:
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
           count, bottom_data, bottom[0]->num(), channels_,
           height_, width_, pooled_height_, pooled_width_, kernel_h_,
-          kernel_w_, stride_h_, stride_w_,
-          rand_idx_.mutable_gpu_data(), top_data);
-    } else {
-      // NOLINT_NEXT_LINE(whitespace/operators)
-      StoPoolForwardTest<Dtype><<<CAFFE_GET_BLOCKS(count),
-                                  CAFFE_CUDA_NUM_THREADS>>>(
-          count, bottom_data, bottom[0]->num(), channels_,
-          height_, width_, pooled_height_, pooled_width_, kernel_h_,
-          kernel_w_, stride_h_, stride_w_, top_data);
+          kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data);
+      break;
+    case PoolingParameter_PoolMethod_STOCHASTIC:
+      if (this->phase_ == TRAIN) {
+        // We need to create the random index as well.
+        caffe_gpu_rng_uniform(count, Dtype(0), Dtype(1),
+                              rand_idx_.mutable_gpu_data());
+        // NOLINT_NEXT_LINE(whitespace/operators)
+        StoPoolForwardTrain<Dtype><<<CAFFE_GET_BLOCKS(count),
+                                     CAFFE_CUDA_NUM_THREADS>>>(
+            count, bottom_data, bottom[0]->num(), channels_,
+            height_, width_, pooled_height_, pooled_width_, kernel_h_,
+            kernel_w_, stride_h_, stride_w_,
+            rand_idx_.mutable_gpu_data(), top_data);
+      } else {
+        // NOLINT_NEXT_LINE(whitespace/operators)
+        StoPoolForwardTest<Dtype><<<CAFFE_GET_BLOCKS(count),
+                                    CAFFE_CUDA_NUM_THREADS>>>(
+            count, bottom_data, bottom[0]->num(), channels_,
+            height_, width_, pooled_height_, pooled_width_, kernel_h_,
+            kernel_w_, stride_h_, stride_w_, top_data);
+      }
+      break;
+    default:
+      LOG(FATAL) << "Unknown pooling method.";
     }
-    break;
-  default:
-    LOG(FATAL) << "Unknown pooling method.";
+  } else {
+  // if (num_spatial_axes_ != 2)
+    switch (this->layer_param_.pooling_param().pool()) {
+      case PoolingParameter_PoolMethod_MAX:
+      if (use_top_mask) {
+        top_mask = top[1]->mutable_gpu_data();
+      } else {
+        mask = max_idx_.mutable_gpu_data();
+      }
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      MaxPoolNDForward<Dtype><<<CAFFE_GET_BLOCKS(count),
+          CAFFE_CUDA_NUM_THREADS>>>(
+          count, num_spatial_axes_, bottom_data,
+          channels_, size_.gpu_data(), pooled_size_.gpu_data(),
+          kernel_shape_.gpu_data(), ext_kernel_shape_.gpu_data(),
+          stride_.gpu_data(), dilation_.gpu_data(), pad_.gpu_data(),
+          top_data, mask, top_mask);
+      break;
+      default: {
+        LOG(FATAL)<< "Unknown pooling method.";
+      }
+    }
   }
   CUDA_POST_KERNEL_CHECK;
 }
@@ -344,41 +554,80 @@ void PoolingLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   const bool use_top_mask = top.size() > 1;
   const int* mask = NULL;
   const Dtype* top_mask = NULL;
-  switch (this->layer_param_.pooling_param().pool()) {
-  case PoolingParameter_PoolMethod_MAX:
-    if (use_top_mask) {
-      top_mask = top[1]->gpu_data();
-    } else {
-      mask = max_idx_.gpu_data();
+
+  if (num_spatial_axes_ == 2) {
+    int kernel_h_ = kernel_shape_.cpu_data()[0];
+    int kernel_w_ = kernel_shape_.cpu_data()[1];
+    int stride_h_ = stride_.cpu_data()[0];
+    int stride_w_ = stride_.cpu_data()[1];
+    int pad_h_ = pad_.cpu_data()[0];
+    int pad_w_ = pad_.cpu_data()[1];
+    int dilation_h_ = dilation_.cpu_data()[0];
+    int dilation_w_ = dilation_.cpu_data()[1];
+    int height_ = size_.cpu_data()[0];
+    int width_ = size_.cpu_data()[1];
+    int pooled_height_ = pooled_size_.cpu_data()[0];
+    int pooled_width_ = pooled_size_.cpu_data()[1];
+    int ext_kernel_h = ext_kernel_shape_.cpu_data()[0];
+    int ext_kernel_w = ext_kernel_shape_.cpu_data()[0];
+
+    switch (this->layer_param_.pooling_param().pool()) {
+    case PoolingParameter_PoolMethod_MAX:
+      if (use_top_mask) {
+        top_mask = top[1]->gpu_data();
+      } else {
+        mask = max_idx_.gpu_data();
+      }
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      MaxPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+          count, top_diff, mask, top_mask, top[0]->num(), channels_,
+          height_, width_, pooled_height_, pooled_width_,
+          kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
+          bottom_diff);
+      break;
+    case PoolingParameter_PoolMethod_AVE:
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      AvePoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+          count, top_diff, top[0]->num(), channels_,
+          height_, width_, pooled_height_, pooled_width_, kernel_h_,
+          kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, bottom_diff);
+      break;
+    case PoolingParameter_PoolMethod_STOCHASTIC:
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      StoPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+          count, rand_idx_.gpu_data(), top_diff,
+          top[0]->num(), channels_, height_, width_, pooled_height_,
+          pooled_width_, kernel_h_, kernel_w_, stride_h_, stride_w_,
+          bottom_diff);
+      break;
+    default:
+      LOG(FATAL) << "Unknown pooling method.";
     }
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    MaxPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        count, top_diff, mask, top_mask, top[0]->num(), channels_,
-        height_, width_, pooled_height_, pooled_width_,
-        kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
-        bottom_diff);
-    break;
-  case PoolingParameter_PoolMethod_AVE:
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    AvePoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        count, top_diff, top[0]->num(), channels_,
-        height_, width_, pooled_height_, pooled_width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, bottom_diff);
-    break;
-  case PoolingParameter_PoolMethod_STOCHASTIC:
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    StoPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        count, rand_idx_.gpu_data(), top_diff,
-        top[0]->num(), channels_, height_, width_, pooled_height_,
-        pooled_width_, kernel_h_, kernel_w_, stride_h_, stride_w_,
-        bottom_diff);
-    break;
-  default:
-    LOG(FATAL) << "Unknown pooling method.";
+  } else {
+  // if (num_spatial_axes_ != 2)
+    switch (this->layer_param_.pooling_param().pool()) {
+      case PoolingParameter_PoolMethod_MAX:
+      if (use_top_mask) {
+        top_mask = top[1]->gpu_data();
+      } else {
+        mask = max_idx_.gpu_data();
+      }
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      MaxPoolNDBackward<Dtype><<<CAFFE_GET_BLOCKS(count),
+          CAFFE_CUDA_NUM_THREADS>>>(
+          count, num_spatial_axes_, top_diff, mask, top_mask,
+          channels_, size_.gpu_data(), pooled_size_.gpu_data(),
+          kernel_shape_.gpu_data(), ext_kernel_shape_.gpu_data(),
+          stride_.gpu_data(), dilation_.gpu_data(), pad_.gpu_data(),
+          bottom_diff);
+      break;
+      default:
+      LOG(FATAL)<<
+      "Unknown or unsupported pooling method in Backward_gpu().";
+    }
   }
   CUDA_POST_KERNEL_CHECK;
 }
-
 
 INSTANTIATE_LAYER_GPU_FUNCS(PoolingLayer);
 
