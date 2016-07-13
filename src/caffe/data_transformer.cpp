@@ -204,27 +204,102 @@ void DataTransformer<Dtype>::Transform(const vector<Datum> & datum_vector,
 #ifdef USE_OPENCV
 template<typename Dtype>
 void DataTransformer<Dtype>::Transform(const vector<cv::Mat> & mat_vector,
-                                       Blob<Dtype>* transformed_blob) {
-  const int mat_num = mat_vector.size();
-  const int num = transformed_blob->num();
-  const int channels = transformed_blob->channels();
-  const int height = transformed_blob->height();
-  const int width = transformed_blob->width();
+                                       Blob<Dtype>* transformed_blob,
+                                       const bool is_video) {
+  if (is_video) {
+    const int mat_num = mat_vector.size();
+    const int num = transformed_blob->shape(0);
+    const int channels = transformed_blob->shape(1);
+    const int length = transformed_blob->shape(2);
+    const int height = transformed_blob->shape(3);
+    const int width = transformed_blob->shape(4);
+    bool mean_cube_subtracted = false;
 
-  CHECK_GT(mat_num, 0) << "There is no MAT to add";
-  CHECK_EQ(mat_num, num) <<
-    "The size of mat_vector must be equals to transformed_blob->num()";
-  Blob<Dtype> uni_blob(1, channels, height, width);
-  for (int item_id = 0; item_id < mat_num; ++item_id) {
-    int offset = transformed_blob->offset(item_id);
-    uni_blob.set_cpu_data(transformed_blob->mutable_cpu_data() + offset);
-    Transform(mat_vector[item_id], &uni_blob);
+    // if mean cube file is given, 3d mean cube should be subtracted at this
+    // level
+    Dtype* mean = NULL;
+    const bool has_mean_file = param_.has_mean_file();
+    if (has_mean_file) {
+      CHECK(data_mean_.shape(0) == mat_vector[0].channels() ||
+            data_mean_.shape(0) == 1);
+      CHECK_EQ(mat_vector[0].rows, data_mean_.shape(2));
+      CHECK_EQ(mat_vector[0].cols, data_mean_.shape(3));
+      mean = data_mean_.mutable_cpu_data();
+      if ((1 != length) && (length == data_mean_.shape(1))) {
+        mean_cube_subtracted = true;
+      } else {
+        CHECK_EQ(1, data_mean_.shape(1));  // will be applied later
+      }
+    }
+
+    // mirroring and random cropping should not be done on each image
+    // individually as images come from a same video clip
+    rng_seed_ = caffe_rng_rand();
+
+    CHECK_GT(mat_num, 0) << "There is no MAT to add";
+    CHECK_EQ(num, 1) << "First dimension (batch number) must be 1";
+    CHECK_EQ(mat_num, length) <<
+      "The size of mat_vector must be equals to transformed_blob->shape(2)";
+    vector<int> uni_blob_shape(5);
+    uni_blob_shape[0] = 1;
+    uni_blob_shape[1] = channels;
+    uni_blob_shape[2] = 1;
+    uni_blob_shape[3] = height;
+    uni_blob_shape[4] = width;
+    Blob<Dtype> uni_blob(uni_blob_shape);
+    vector<int> indices(5);
+    for (int item_id = 0; item_id < mat_num; ++item_id) {
+      cv::Mat cv_img = mat_vector[item_id].clone();
+      CHECK(cv_img.depth() == CV_8U) << "Image data type must " <<
+        "be unsigned byte";
+
+      // mean cube subtraction for C3D data
+      if (mean_cube_subtracted) {
+        for (int c = 0; c < cv_img.channels(); ++c) {
+          for (int h = 0; h < cv_img.rows; ++h) {
+            for (int w = 0; w < cv_img.cols; ++w) {
+              int mean_index = ((c * length + item_id) * height + h) * width
+                                 + w;
+              cv_img.at<cv::Vec3b>(h, w)[c] -= mean[mean_index];
+            }
+          }
+        }
+      }
+
+      indices[0] = 0;
+      indices[1] = 0;
+      indices[2] = item_id;
+      indices[3] = 0;
+      indices[4] = 0;
+      int offset = transformed_blob->offset(indices);
+      uni_blob.set_cpu_data(transformed_blob->mutable_cpu_data() + offset);
+
+      Transform(cv_img, &uni_blob, mean_cube_subtracted, true);
+    }
+  } else {
+    const int mat_num = mat_vector.size();
+    const int num = transformed_blob->num();
+    const int channels = transformed_blob->channels();
+    const int height = transformed_blob->height();
+    const int width = transformed_blob->width();
+
+    CHECK_GT(mat_num, 0) << "There is no MAT to add";
+    CHECK_EQ(mat_num, num) <<
+      "The size of mat_vector must be equals to transformed_blob->num()";
+    Blob<Dtype> uni_blob(1, channels, height, width);
+    for (int item_id = 0; item_id < mat_num; ++item_id) {
+      int offset = transformed_blob->offset(item_id);
+      uni_blob.set_cpu_data(transformed_blob->mutable_cpu_data() + offset);
+      Transform(mat_vector[item_id], &uni_blob, false);
+    }
   }
 }
 
 template<typename Dtype>
 void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
-                                       Blob<Dtype>* transformed_blob) {
+                                       Blob<Dtype>* transformed_blob,
+                                       const bool force_no_mean,
+                                       const bool is_video) {
   const int crop_size = param_.crop_size();
   const int img_channels = cv_img.channels();
   const int img_height = cv_img.rows;
@@ -253,13 +328,13 @@ void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
   CHECK_GE(img_width, crop_size);
 
   Dtype* mean = NULL;
-  if (has_mean_file) {
+  if (has_mean_file && !force_no_mean) {
     CHECK_EQ(img_channels, data_mean_.channels());
     CHECK_EQ(img_height, data_mean_.height());
     CHECK_EQ(img_width, data_mean_.width());
     mean = data_mean_.mutable_cpu_data();
   }
-  if (has_mean_values) {
+  if (has_mean_values && !force_no_mean) {
     CHECK(mean_values_.size() == 1 || mean_values_.size() == img_channels) <<
      "Specify either 1 mean_value or as many as channels: " << img_channels;
     if (img_channels > 1 && mean_values_.size() == 1) {
@@ -269,6 +344,11 @@ void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
       }
     }
   }
+
+  // For videos, re-use random seed to replicate randomness
+  // (e.g. same croppings, mirrorings)
+  if (is_video)
+    SetRandFromSeed(rng_seed_);
 
   int h_off = 0;
   int w_off = 0;
@@ -307,12 +387,12 @@ void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
         }
         // int top_index = (c * height + h) * width + w;
         Dtype pixel = static_cast<Dtype>(ptr[img_index++]);
-        if (has_mean_file) {
+        if (has_mean_file && !force_no_mean) {
           int mean_index = (c * img_height + h_off + h) * img_width + w_off + w;
           transformed_data[top_index] =
             (pixel - mean[mean_index]) * scale;
         } else {
-          if (has_mean_values) {
+          if (has_mean_values && !force_no_mean) {
             transformed_data[top_index] =
               (pixel - mean_values_[c]) * scale;
           } else {
@@ -508,14 +588,27 @@ vector<int> DataTransformer<Dtype>::InferBlobShape(const cv::Mat& cv_img) {
 
 template<typename Dtype>
 vector<int> DataTransformer<Dtype>::InferBlobShape(
-    const vector<cv::Mat> & mat_vector) {
+    const vector<cv::Mat> & mat_vector, const bool is_video) {
   const int num = mat_vector.size();
   CHECK_GT(num, 0) << "There is no cv_img to in the vector";
-  // Use first cv_img in the vector to InferBlobShape.
-  vector<int> shape = InferBlobShape(mat_vector[0]);
-  // Adjust num to the size of the vector.
-  shape[0] = num;
-  return shape;
+  if (is_video) {
+    vector<int> tmp_shape = InferBlobShape(mat_vector, false);
+    CHECK_EQ(tmp_shape.size(), 4) << "A mat_vector must be 4-dimensional";
+    vector<int> shape(5);
+    shape[0] = 1;             // num of batches
+    shape[1] = tmp_shape[1];  // num of channels
+    shape[2] = num;           // this is actually "length" of C3D blob
+    shape[3] = tmp_shape[2];
+    shape[4] = tmp_shape[3];
+    return shape;
+  } else {
+    // Use first cv_img in the vector to InferBlobShape.
+    vector<int> shape;
+    shape = InferBlobShape(mat_vector[0]);
+    // Adjust num to the size of the vector.
+    shape[0] = num;
+    return shape;
+  }
 }
 #endif  // USE_OPENCV
 
@@ -529,6 +622,11 @@ void DataTransformer<Dtype>::InitRand() {
   } else {
     rng_.reset();
   }
+}
+
+template <typename Dtype>
+void DataTransformer<Dtype>::SetRandFromSeed(const unsigned int rng_seed) {
+  rng_.reset(new Caffe::RNG(rng_seed));
 }
 
 template <typename Dtype>
