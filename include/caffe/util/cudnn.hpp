@@ -3,6 +3,8 @@
 #ifdef USE_CUDNN
 
 #include <cudnn.h>
+#include <algorithm>
+#include <vector>
 
 #include "caffe/common.hpp"
 #include "caffe/proto/caffe.pb.h"
