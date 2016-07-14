@@ -9,7 +9,7 @@ layer {
   top: "label"
   video_data_param {
     source: "examples/c3d_ucf101/c3d_ucf101_train_split1.txt"
-    batch_size: 15
+    batch_size: 25
     new_height: 128
     new_width: 171
     new_length: 16
@@ -30,34 +30,6 @@ layer {
   }
 }
 # ----- for validation
-layer {
-  name: "data"
-  type: "VideoData"
-  top: "data"
-  top: "label"
-  video_data_param {
-    source: "examples/c3d_ucf101/c3d_ucf101_train_split1.txt"
-    batch_size: 5
-    new_height: 128
-    new_width: 171
-    new_length: 16
-    shuffle: true
-  }
-  include {
-    phase: TEST
-    stage: "test-on-train"
-  }
-  transform_param {
-    crop_size: 112
-    mirror: false
-    #mean_file: "examples/c3d_ucf101/ucf101_train_mean.binaryproto"
-    # instead of using mean cube, use a mean pixel
-    # (90,98,102) is based on UCF-101 training data
-    mean_value: 90
-    mean_value: 98
-    mean_value: 102
-  }
-}
 layer {
   name: "data"
   type: "VideoData"

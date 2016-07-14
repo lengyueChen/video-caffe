@@ -247,7 +247,7 @@ void DataTransformer<Dtype>::Transform(const vector<cv::Mat> & mat_vector,
     uni_blob_shape[3] = height;
     uni_blob_shape[4] = width;
     Blob<Dtype> uni_blob(uni_blob_shape);
-    vector<int> indices(5);
+    vector<int> indices(5, 0);
     for (int item_id = 0; item_id < mat_num; ++item_id) {
       cv::Mat cv_img = mat_vector[item_id].clone();
       CHECK(cv_img.depth() == CV_8U) << "Image data type must " <<
@@ -265,12 +265,7 @@ void DataTransformer<Dtype>::Transform(const vector<cv::Mat> & mat_vector,
           }
         }
       }
-
-      indices[0] = 0;
-      indices[1] = 0;
       indices[2] = item_id;
-      indices[3] = 0;
-      indices[4] = 0;
       int offset = transformed_blob->offset(indices);
       uni_blob.set_cpu_data(transformed_blob->mutable_cpu_data() + offset);
 
