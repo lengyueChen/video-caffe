@@ -110,11 +110,11 @@ TYPED_TEST(VideoDataLayerTest, TestCrop) {
 
   VideoDataLayer<Dtype> layer(param);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_data_->num(), 5);
-  EXPECT_EQ(this->blob_top_data_->channels(), 3);
-  EXPECT_EQ(this->blob_top_data_->length(), 16);
-  EXPECT_EQ(this->blob_top_data_->height(), 77);
-  EXPECT_EQ(this->blob_top_data_->width(), 77);
+  EXPECT_EQ(this->blob_top_data_->shape(0), 5);
+  EXPECT_EQ(this->blob_top_data_->shape(1), 3);
+  EXPECT_EQ(this->blob_top_data_->shape(2), 16);
+  EXPECT_EQ(this->blob_top_data_->shape(3), 77);
+  EXPECT_EQ(this->blob_top_data_->shape(4), 77);
   EXPECT_EQ(this->blob_top_label_->num(), 5);
   // Go through the data twice
   for (int iter = 0; iter < 2; ++iter) {
@@ -137,11 +137,11 @@ TYPED_TEST(VideoDataLayerTest, TestResize) {
   video_data_param->set_shuffle(false);
   VideoDataLayer<Dtype> layer(param);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_data_->num(), 5);
-  EXPECT_EQ(this->blob_top_data_->channels(), 3);
-  EXPECT_EQ(this->blob_top_data_->length(), 16);
-  EXPECT_EQ(this->blob_top_data_->height(), 132);
-  EXPECT_EQ(this->blob_top_data_->width(), 123);
+  EXPECT_EQ(this->blob_top_data_->shape(0), 5);
+  EXPECT_EQ(this->blob_top_data_->shape(1), 3);
+  EXPECT_EQ(this->blob_top_data_->shape(2), 16);
+  EXPECT_EQ(this->blob_top_data_->shape(3), 132);
+  EXPECT_EQ(this->blob_top_data_->shape(4), 123);
   EXPECT_EQ(this->blob_top_label_->num(), 5);
   // Go through the data twice
   for (int iter = 0; iter < 2; ++iter) {
@@ -168,18 +168,18 @@ TYPED_TEST(VideoDataLayerTest, TestReshape) {
   EXPECT_EQ(this->blob_top_label_->width(), 1);
   //
   layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_data_->num(), 1);
-  EXPECT_EQ(this->blob_top_data_->channels(), 3);
-  EXPECT_EQ(this->blob_top_data_->length(), 16);
-  EXPECT_EQ(this->blob_top_data_->height(), 240);
-  EXPECT_EQ(this->blob_top_data_->width(), 320);
+  EXPECT_EQ(this->blob_top_data_->shape(0), 1);
+  EXPECT_EQ(this->blob_top_data_->shape(1), 3);
+  EXPECT_EQ(this->blob_top_data_->shape(2), 16);
+  EXPECT_EQ(this->blob_top_data_->shape(3), 240);
+  EXPECT_EQ(this->blob_top_data_->shape(4), 320);
   //
   layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_data_->num(), 1);
-  EXPECT_EQ(this->blob_top_data_->channels(), 3);
-  EXPECT_EQ(this->blob_top_data_->length(), 16);
-  EXPECT_EQ(this->blob_top_data_->height(), 240);
-  EXPECT_EQ(this->blob_top_data_->width(), 320);
+  EXPECT_EQ(this->blob_top_data_->shape(0), 1);
+  EXPECT_EQ(this->blob_top_data_->shape(1), 3);
+  EXPECT_EQ(this->blob_top_data_->shape(2), 16);
+  EXPECT_EQ(this->blob_top_data_->shape(3), 240);
+  EXPECT_EQ(this->blob_top_data_->shape(4), 320);
 }
 
 TYPED_TEST(VideoDataLayerTest, TestShuffle) {
@@ -192,10 +192,10 @@ TYPED_TEST(VideoDataLayerTest, TestShuffle) {
   video_data_param->set_shuffle(true);
   VideoDataLayer<Dtype> layer(param);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_data_->num(), 5);
-  EXPECT_EQ(this->blob_top_data_->channels(), 3);
-  EXPECT_EQ(this->blob_top_data_->height(), 240);
-  EXPECT_EQ(this->blob_top_data_->width(), 320);
+  EXPECT_EQ(this->blob_top_data_->shape(0), 5);
+  EXPECT_EQ(this->blob_top_data_->shape(1), 3);
+  EXPECT_EQ(this->blob_top_data_->shape(3), 240);
+  EXPECT_EQ(this->blob_top_data_->shape(4), 320);
   EXPECT_EQ(this->blob_top_label_->num(), 5);
   // Go through the data twice
   for (int iter = 0; iter < 2; ++iter) {
