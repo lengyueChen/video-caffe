@@ -75,7 +75,8 @@ layer {
   }
   convolution_param {
     num_output: 64
-    engine: CAFFE
+    ##engine: CAFFE
+    # 3x3x3 kernel with stride/pad of 1 in all dim
     axis: 1
     kernel_size: 3
     stride: 1
@@ -103,6 +104,7 @@ layer {
   top: "pool1"
   pooling_param {
     pool: MAX
+    # 1x2x2 pooling
     kernel_size: 1
     kernel_size: 2
     kernel_size: 2
@@ -128,7 +130,7 @@ layer {
   }
   convolution_param {
     num_output: 128
-    engine: CAFFE
+    #engine: CAFFE
     axis: 1
     kernel_size: 3
     stride: 1
@@ -156,8 +158,8 @@ layer {
   top: "pool2"
   pooling_param {
     pool: MAX
-    kernel_size: 2
-    kernel_size: 2
+    # 2x2x2 pooling
+    axis: 1
     kernel_size: 2
     stride: 2
   }
@@ -179,7 +181,7 @@ layer {
   }
   convolution_param {
     num_output: 256
-    engine: CAFFE
+    #engine: CAFFE
     axis: 1
     kernel_size: 3
     stride: 1
@@ -207,8 +209,8 @@ layer {
   top: "pool3"
   pooling_param {
     pool: MAX
-    kernel_size: 2
-    kernel_size: 2
+    # 2x2x2 pooling
+    axis: 1
     kernel_size: 2
     stride: 2
   }
@@ -230,7 +232,7 @@ layer {
   }
   convolution_param {
     num_output: 256
-    engine: CAFFE
+    #engine: CAFFE
     axis: 1
     kernel_size: 3
     stride: 1
@@ -258,8 +260,8 @@ layer {
   top: "pool4"
   pooling_param {
     pool: MAX
-    kernel_size: 2
-    kernel_size: 2
+    # 2x2x2 pooling
+    axis: 1
     kernel_size: 2
     stride: 2
   }
@@ -281,7 +283,7 @@ layer {
   }
   convolution_param {
     num_output: 256
-    engine: CAFFE
+    #engine: CAFFE
     axis: 1
     kernel_size: 3
     stride: 1
@@ -309,8 +311,8 @@ layer {
   top: "pool5"
   pooling_param {
     pool: MAX
-    kernel_size: 2
-    kernel_size: 2
+    # 2x2x2 pooling
+    axis: 1
     kernel_size: 2
     stride: 2
   }
@@ -443,19 +445,6 @@ layer {
   top: "accuracy/top-1"
   include {
     phase: TEST
-  }
-}
-layer {
-  name: "accuracy"
-  type: "Accuracy"
-  bottom: "prob"
-  bottom: "label"
-  top: "accuracy/top-5"
-  include {
-    phase: TEST
-  }
-  accuracy_param {
-    top_k: 5
   }
 }
 layer {

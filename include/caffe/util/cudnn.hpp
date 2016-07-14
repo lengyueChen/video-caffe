@@ -184,6 +184,36 @@ inline void createFilterDesc(cudnnFilterDescriptor_t* desc,
 }
 
 template <typename Dtype>
+inline void createFilterDesc(cudnnFilterDescriptor_t* desc,
+    const int num_spatial_dims,
+    const int n, const int c, const int* shape) {
+
+  std::vector<int> shape_int(num_spatial_dims + 2);
+
+  shape_int[0] = n;
+  shape_int[1] = c;
+
+  for (int i = 0; i < num_spatial_dims; ++i) {
+    shape_int[2+i] = shape[i];
+  }
+
+  const int* shape_ptr = &shape_int[0];
+
+  CUDNN_CHECK(cudnnCreateFilterDescriptor(desc));
+#if CUDNN_VERSION_MIN(5, 0, 0)
+  CUDNN_CHECK(cudnnSetFilterNdDescriptor(*desc, dataType<Dtype>::type,
+                                         CUDNN_TENSOR_NCHW,
+                                         num_spatial_dims + 2,
+                                         shape_ptr));
+#else
+  CUDNN_CHECK(cudnnSetFilterNdDescriptor_v4(*desc, dataType<Dtype>::type,
+                                         CUDNN_TENSOR_NCHW,
+                                         num_spatial_dims + 2,
+                                         shape_ptr));
+#endif
+}
+
+template <typename Dtype>
 inline void createConvolutionDesc(cudnnConvolutionDescriptor_t* conv) {
   CUDNN_CHECK(cudnnCreateConvolutionDescriptor(conv));
 }
@@ -194,6 +224,30 @@ inline void setConvolutionDesc(cudnnConvolutionDescriptor_t* conv,
     int pad_h, int pad_w, int stride_h, int stride_w) {
   CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*conv,
       pad_h, pad_w, stride_h, stride_w, 1, 1, CUDNN_CROSS_CORRELATION));
+}
+
+template <typename Dtype>
+inline void setConvolutionDesc(cudnnConvolutionDescriptor_t* conv,
+    cudnnTensorDescriptor_t bottom, cudnnFilterDescriptor_t filter,
+    const int num_spatial_dims, const int* pad, const int* stride) {
+
+  std::vector<int> pad_int(num_spatial_dims);
+  std::vector<int> stride_int(num_spatial_dims);
+  std::vector<int> upscale_int(num_spatial_dims);
+
+  for (int i = 0; i < num_spatial_dims; ++i) {
+    pad_int[i] = pad[i];
+    stride_int[i] = stride[i];
+    upscale_int[i] = 1;
+  }
+
+  const int* pad_ptr = &pad_int[0];
+  const int* stride_ptr = &stride_int[0];
+  const int* upscale_ptr = &upscale_int[0];
+
+  CUDNN_CHECK(cudnnSetConvolutionNdDescriptor(*conv, num_spatial_dims,
+        pad_ptr, stride_ptr, upscale_ptr, CUDNN_CROSS_CORRELATION,
+        dataType<Dtype>::type));
 }
 
 template <typename Dtype>
