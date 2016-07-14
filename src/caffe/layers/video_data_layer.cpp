@@ -182,7 +182,7 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
     timer.Start();
     // Apply transformations (mirror, crop...) to the image
     vector<int> indices(5, 0);
-    indices[2] = item_id;
+    indices[0] = item_id;
     int offset = batch->data_.offset(indices);
     this->transformed_data_.set_cpu_data(prefetch_data + offset);
     const bool is_video = true;
