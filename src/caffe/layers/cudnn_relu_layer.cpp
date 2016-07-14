@@ -5,6 +5,7 @@
 
 namespace caffe {
 
+/*
 template <typename Dtype>
 void CuDNNReLULayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -27,6 +28,29 @@ void CuDNNReLULayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   const int W = bottom[0]->width();
   cudnn::setTensor4dDesc<Dtype>(&bottom_desc_, N, K, H, W);
   cudnn::setTensor4dDesc<Dtype>(&top_desc_, N, K, H, W);
+}
+*/
+
+template <typename Dtype>
+void CuDNNReLULayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top) {
+  ReLULayer<Dtype>::LayerSetUp(bottom, top);
+  // initialize cuDNN
+  CUDNN_CHECK(cudnnCreate(&handle_));
+  cudnn::createTensorNdDesc<Dtype>(&bottom_desc_);
+  cudnn::createTensorNdDesc<Dtype>(&top_desc_);
+  cudnn::createActivationDescriptor<Dtype>(&activ_desc_, CUDNN_ACTIVATION_RELU);
+  handles_setup_ = true;
+}
+
+template <typename Dtype>
+void CuDNNReLULayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top) {
+  ReLULayer<Dtype>::Reshape(bottom, top);
+  cudnn::setTensorNdDesc<Dtype>(&bottom_desc_, bottom[0]->shape().size(),
+                                &(bottom[0]->shape()[0]));
+  cudnn::setTensorNdDesc<Dtype>(&top_desc_, top[0]->shape().size(),
+                                &(top[0]->shape()[0]));
 }
 
 template <typename Dtype>
