@@ -160,7 +160,6 @@ Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
     // cuDNN, use Caffe layer to max pooling, or don't use in place
     // layers after max pooling layers
       return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
-    }
 #endif
   } else {
     LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
