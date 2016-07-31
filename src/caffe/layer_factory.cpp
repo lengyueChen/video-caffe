@@ -136,15 +136,20 @@ REGISTER_LAYER_CREATOR(Pooling, GetPoolingLayer);
 
 // Get unpooling layer according to engine.
 template <typename Dtype>
-Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
+shared_ptr<Layer<Dtype> > GetUnpoolingLayer(const LayerParameter& param) {
   UnpoolingParameter_Engine engine = param.unpooling_param().engine();
   if (engine == UnpoolingParameter_Engine_DEFAULT) {
     engine = UnpoolingParameter_Engine_CAFFE;
+#ifdef USE_CUDNN
+    engine = UnpoolingParameter_Engine_CUDNN;
+#endif
   }
   if (engine == UnpoolingParameter_Engine_CAFFE) {
     return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
+#ifdef USE_CUDNN
   } else if (engine == UnpoolingParameter_Engine_CUDNN) {
     NOT_IMPLEMENTED;
+#endif
   } else {
     LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
   }
