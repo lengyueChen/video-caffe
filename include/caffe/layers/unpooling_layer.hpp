@@ -10,9 +10,9 @@
 namespace caffe {
 
 template <typename Dtype>
-class UnPoolingLayer : public Layer<Dtype> {
+class UnpoolingLayer : public Layer<Dtype> {
  public:
-  explicit UnPoolingLayer(const LayerParameter& param)
+  explicit UnpoolingLayer(const LayerParameter& param)
       : Layer<Dtype>(param) {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
