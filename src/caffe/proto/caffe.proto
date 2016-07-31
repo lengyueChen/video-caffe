@@ -410,7 +410,7 @@ message LayerParameter {
   optional VideoDataParameter video_data_param = 7777;
   optional WindowDataParameter window_data_param = 129;
   //add
-  optional UnpoolingParameter unpooling_param = 146;
+  optional UnpoolingParameter unpooling_param = 147;
 }
 
 // Message that stores parameters used to apply transformation
