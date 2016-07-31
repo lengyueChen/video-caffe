@@ -133,7 +133,7 @@ shared_ptr<Layer<Dtype> > GetPoolingLayer(const LayerParameter& param) {
 
 REGISTER_LAYER_CREATOR(Pooling, GetPoolingLayer);
 
-
+/*
 // Get unpooling layer according to engine.
 template <typename Dtype>
 Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
@@ -167,7 +167,7 @@ Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
 }
 
 REGISTER_LAYER_CREATOR(Unpooling, GetUnpoolingLayer);
-
+*/
 
 // Get LRN layer according to engine
 template <typename Dtype>
