@@ -144,7 +144,7 @@ Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
     engine = UnpoolingParameter_Engine_CUDNN;
 #endif
   }
-  if (engine == PoolingParameter_Engine_CAFFE) {
+  if (engine == UnpoolingParameter_Engine_CAFFE) {
     return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
 #ifdef USE_CUDNN
   } else if (engine == UnpoolingParameter_Engine_CUDNN) {
