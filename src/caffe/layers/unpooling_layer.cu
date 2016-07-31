@@ -178,7 +178,7 @@ void UnpoolingLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         height_, width_, unpooled_height_, unpooled_width_,
         kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
         bottom_diff);
-        
+
   CUDA_POST_KERNEL_CHECK;
 }
 
