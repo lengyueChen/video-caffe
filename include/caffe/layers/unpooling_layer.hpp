@@ -19,7 +19,7 @@ class UnpoolingLayer : public Layer<Dtype> {
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
 
-  virtual inline const char* type() const { return "UnPooling"; }
+  virtual inline const char* type() const { return "Unpooling"; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
   virtual inline int MinBottomBlobs() const { return 1; }
   virtual inline int MaxBottomBlobs() const {
