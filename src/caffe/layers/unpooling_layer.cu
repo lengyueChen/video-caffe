@@ -79,8 +79,6 @@ void UnpoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   // We'll get the mask from bottom[1] if it's of size >1.
   const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
-  switch (this->layer_param_.unpooling_param().unpool()) {
-  case UnpoolingParameter_UnpoolMethod_MAX:
     if (use_bottom_mask) {
       bottom_mask = bottom[1]->gpu_data();
     } 
@@ -90,17 +88,6 @@ void UnpoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         height_, width_, unpooled_height_, unpooled_width_, kernel_h_,
         kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data,
         bottom_mask);
-    break;
-  case UnpoolingParameter_UnpoolMethod_AVE:
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    AveUnpoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        top[0]->count(), bottom_data, bottom[0]->num(), channels_,
-        unpooled_height_, unpooled_width_, height_, width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data);
-    break;
-  default:
-    LOG(FATAL) << "Unknown unpooling method.";
-  }
   CUDA_POST_KERNEL_CHECK;
 }
 
@@ -181,8 +168,7 @@ void UnpoolingLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   // We'll get the mask from bottom[1] if it's of size >1.
   const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
-  switch (this->layer_param_.unpooling_param().unpool()) {
-  case UnpoolingParameter_UnpoolMethod_MAX:
+
     if (use_bottom_mask) {
       bottom_mask = bottom[1]->gpu_data();
     } 
@@ -192,17 +178,7 @@ void UnpoolingLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         height_, width_, unpooled_height_, unpooled_width_,
         kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
         bottom_diff);
-    break;
-  case UnpoolingParameter_UnpoolMethod_AVE:
-    // NOLINT_NEXT_LINE(whitespace/operators)
-    AveUnpoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        bottom[0]->count(), top_diff, top[0]->num(), channels_,
-        unpooled_height_, unpooled_width_, height_, width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, bottom_diff);
-    break;
-  default:
-    LOG(FATAL) << "Unknown unpooling method.";
-  }
+        
   CUDA_POST_KERNEL_CHECK;
 }
 

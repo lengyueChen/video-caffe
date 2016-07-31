@@ -932,7 +932,7 @@ message PoolingParameter {
 
 message UnpoolingParameter {
   // video-caffe params start with 7777
-  enum UnPoolMethod {
+  enum UnpoolMethod {
     MAX = 0;
     AVE = 1;
     STOCHASTIC = 2;
@@ -951,7 +951,7 @@ message UnpoolingParameter {
   optional uint32 stride_h = 7; // The stride height
   optional uint32 stride_w = 8; // The stride width
 
-  // nd pooling specific parameters
+  // nd unpooling specific parameters
   optional BlobShape pad_shape = 7777;
   optional BlobShape kernel_shape = 7778;
   optional BlobShape stride_shape = 7779;

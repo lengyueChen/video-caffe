@@ -60,9 +60,6 @@ void UnpoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     stride_w_ = unpool_param.stride_w();
   }
   if (pad_h_ != 0 || pad_w_ != 0) {
-    CHECK( unpool_param.unpool()
-        == UnpoolingParameter_UnpoolMethod_MAX)
-        << "Padding implemented only for max unpooling.";
     CHECK_LT(pad_h_, kernel_h_);
     CHECK_LT(pad_w_, kernel_w_);
   }
@@ -109,10 +106,7 @@ void UnpoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   // We'll get the mask from bottom[1] if it's of size >1.
   const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
-  // Different unpooling methods. We explicitly do the switch outside the for
-  // loop to save time, although this results in more code.
-  switch (this->layer_param_.unpooling_param().unpool()) {
-  case UnpoolingParameter_UnpoolMethod_MAX:
+
     caffe_set(top_count, Dtype(0), top_data);
     // Initialize
     if (use_bottom_mask) {
@@ -143,39 +137,7 @@ void UnpoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         } 
       }
     }
-    break;
-  case UnpoolingParameter_UnpoolMethod_AVE:
-     // The main loop
-    for (int n = 0; n < top[0]->num(); ++n) {
-      for (int c = 0; c < channels_; ++c) {
-        for (int ph = 0; ph < height_; ++ph) {
-          for (int pw = 0; pw < width_; ++pw) {
-            int hstart = ph * stride_h_ - pad_h_;
-            int wstart = pw * stride_w_ - pad_w_;
-            int hend = min(hstart + kernel_h_, unpooled_height_ + pad_h_);
-            int wend = min(wstart + kernel_w_, unpooled_width_ + pad_w_);
-            int pool_size = (hend - hstart) * (wend - wstart);
-            hstart = max(hstart, 0);
-            wstart = max(wstart, 0);
-            hend = min(hend, unpooled_height_);
-            wend = min(wend, unpooled_width_);
-            for (int h = hstart; h < hend; ++h) {
-              for (int w = wstart; w < wend; ++w) {
-                top_data[h * unpooled_width_ + w] +=
-                  bottom_data[ph * width_ + pw] / pool_size;
-              }
-            }
-          }
-        }
-        // offset
-        bottom_data += bottom[0]->offset(0, 1);
-        top_data += top[0]->offset(0, 1);
-      }
-    }
-    break;
-  default:
-    LOG(FATAL) << "Unknown unpooling method.";
-  }
+    
 }
 
 template <typename Dtype>
@@ -192,8 +154,6 @@ void UnpoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   // We'll output the mask to top[1] if it's of size >1.
   const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
-  switch (this->layer_param_.unpooling_param().unpool()) {
-  case UnpoolingParameter_UnpoolMethod_MAX:
     if (use_bottom_mask) {
       bottom_mask = bottom[1]->cpu_data();
     } 
@@ -222,43 +182,6 @@ void UnpoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         } 
       }
     }
-    break;
-  case UnpoolingParameter_UnpoolMethod_AVE:
-    for (int i = 0; i < bottom[0]->count(); ++i) {
-      bottom_diff[i] = 0;
-    }
-    // The main loop
-    for (int n = 0; n < bottom[0]->num(); ++n) {
-      for (int c = 0; c < channels_; ++c) {
-        for (int ph = 0; ph < height_; ++ph) {
-          for (int pw = 0; pw < width_; ++pw) {
-            int hstart = ph * stride_h_ - pad_h_;
-            int wstart = pw * stride_w_ - pad_w_;
-            int hend = min(hstart + kernel_h_, unpooled_height_ + pad_h_);
-            int wend = min(wstart + kernel_w_, unpooled_width_ + pad_w_);
-            int pool_size = (hend - hstart) * (wend - wstart);
-            hstart = max(hstart, 0);
-            wstart = max(wstart, 0);
-            hend = min(hend, unpooled_height_);
-            wend = min(wend, unpooled_width_);
-            for (int h = hstart; h < hend; ++h) {
-              for (int w = wstart; w < wend; ++w) {
-                bottom_diff[ph * width_ + pw] +=
-                    top_diff[h * unpooled_width_ + w];
-              }
-            }
-            bottom_diff[ph * width_ + pw] /= pool_size;
-          }
-        }
-        // compute offset
-        bottom_diff += bottom[0]->offset(0, 1);
-        top_diff += top[0]->offset(0, 1);
-      }
-    }
-    break;
-  default:
-    LOG(FATAL) << "Unknown unpooling method.";
-  }
 }
 
 
@@ -267,5 +190,6 @@ STUB_GPU(UnpoolingLayer);
 #endif
 
 INSTANTIATE_CLASS(UnpoolingLayer);
+REGISTER_LAYER_CLASS(Unpooling);
 
 }  // namespace caffe
