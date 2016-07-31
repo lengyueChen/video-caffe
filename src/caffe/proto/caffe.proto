@@ -965,7 +965,7 @@ message UnpoolingParameter {
     CUDNN = 2;
   }
 
-  optional Engine engine = 11 [default = DEFAULT];
+  optional Engine engine = 15 [default = DEFAULT];
 }
 
 

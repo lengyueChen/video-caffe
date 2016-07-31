@@ -133,7 +133,7 @@ shared_ptr<Layer<Dtype> > GetPoolingLayer(const LayerParameter& param) {
 
 REGISTER_LAYER_CREATOR(Pooling, GetPoolingLayer);
 
-/*
+
 // Get unpooling layer according to engine.
 template <typename Dtype>
 Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
@@ -148,18 +148,7 @@ Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
     return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
 #ifdef USE_CUDNN
   } else if (engine == UnpoolingParameter_Engine_CUDNN) {
-    // I don't understand this part
-    if (param.bottom_size() > 1) {
-      LOG(INFO) << "cuDNN does not support multiple bottoms. "
-                << "Using Caffe's own unpooling layer.";
-      return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
-    }
-    // CuDNN assumes layers are not being modified in place, thus
-    // breaking our index tracking for updates in some cases in Caffe.
-    // Until there is a workaround in Caffe (index management) or
-    // cuDNN, use Caffe layer to max pooling, or don't use in place
-    // layers after max pooling layers
-      return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
+    NOT_IMPLEMENTED;
 #endif
   } else {
     LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
@@ -167,7 +156,6 @@ Layer<Dtype>* GetUnpoolingLayer(const LayerParameter& param) {
 }
 
 REGISTER_LAYER_CREATOR(Unpooling, GetUnpoolingLayer);
-*/
 
 // Get LRN layer according to engine
 template <typename Dtype>
