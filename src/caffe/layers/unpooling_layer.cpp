@@ -14,7 +14,7 @@ using std::max;
 template <typename Dtype>
 void UnpoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  UnPoolingParameter unpool_param = this->layer_param_.unpooling_param();
+  UnpoolingParameter unpool_param = this->layer_param_.unpooling_param();
 
   CHECK(!unpool_param.has_kernel_size() !=
     !(unpool_param.has_kernel_h() && unpool_param.has_kernel_w()))
