@@ -18,7 +18,7 @@
 
 namespace caffe{
 	
-template <typename Dtype>
+template <typename TypeParam>
 class UnpoolingLayerTest : public MultiDeviceTest<TypeParam> {
 	typedef typename TypeParam::Dtype Dtype;
 
@@ -251,7 +251,7 @@ UnpoolingLayerTest()
             }
         }       
  	};
- 	
+
  	TYPED_TEST_CASE(UnpoolingLayerTest,TestDtypes);
 
  	TYPED_TEST(UnpoolingLayerTest,TESTForward){
