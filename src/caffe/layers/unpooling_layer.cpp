@@ -63,8 +63,8 @@ void UnpoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 void UnpoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
-      << "corresponding to (num, channels, height, width)";
+  //CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
+  //    << "corresponding to (num, channels, height, width)";
   channels_ = bottom[0]->channels();
   height_ = bottom[0]->height();
   width_ = bottom[0]->width();
