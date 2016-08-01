@@ -53,8 +53,8 @@ UnpoolingLayerTest()
 	Blob<Dtype>* const blob_bottom_;
 	Blob<Dtype>* const blob_top_;
 	Blob<Dtype>* const blob_bottom_mask_;
-	vector<Blob<Dtype>*> const blob_bottom_vec_;
-	vector<Blob<Dtype>*> const blob_top_vec_;
+	vector<Blob<Dtype>*>  blob_bottom_vec_;
+	vector<Blob<Dtype>*>  blob_top_vec_;
 
 	void TestForwardSquare(){
 		LayerParameter layer_param;
