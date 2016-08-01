@@ -18,9 +18,9 @@
 
 namespace caffe{
 	
-template <typename TypeParam>
-class UnpoolingLayerTest : public MultiDeviceTest<TypeParam> {
-	typedef typename TypeParam::Dtype Dtype;
+template <typename Dtype>
+class UnpoolingLayerTest : public CPUDeviceTest<Dtype> {
+	//typedef typename TypeParam::Dtype Dtype;
 
 protected:
 UnpoolingLayerTest()
