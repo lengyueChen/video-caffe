@@ -256,7 +256,7 @@ UnpoolingLayerTest()
 
  	TYPED_TEST(UnpoolingLayerTest,TESTForward){
  		this->TestForwardSquare();
- 		//this->TestForwardRectHigh();
+ 		this->TestForwardRectHigh();
  	}
 
 } // namespace caffe

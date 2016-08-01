@@ -144,15 +144,15 @@ shared_ptr<Layer<Dtype> > GetUnpoolingLayer(const LayerParameter& param) {
     engine = UnpoolingParameter_Engine_CUDNN;
 #endif
   }
-  if (engine == UnpoolingParameter_Engine_CAFFE) {
+  //if (engine == UnpoolingParameter_Engine_CAFFE) {
     return shared_ptr<Layer<Dtype> >(new UnpoolingLayer<Dtype>(param));
-#ifdef USE_CUDNN
-  } else if (engine == UnpoolingParameter_Engine_CUDNN) {
-    NOT_IMPLEMENTED;
-#endif
-  } else {
-    LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
-  }
+//#ifdef USE_CUDNN
+  //} else if (engine == UnpoolingParameter_Engine_CUDNN) {
+    //NOT_IMPLEMENTED;
+//#endif
+  //} else {
+   // LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
+  //}
 }
 
 REGISTER_LAYER_CREATOR(Unpooling,GetUnpoolingLayer);
