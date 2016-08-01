@@ -424,7 +424,7 @@ TEST_F(IOTest, TestDecodeDatumToCVMatContentNative) {
     }
   }
 }
-
+/*
 TEST_F(IOTest, TestReadVideoToCVMatBasic) {
   string path = CMAKE_SOURCE_DIR \
                 "caffe/test/test_data/youtube_objects_dog_v0002_s006";
@@ -528,6 +528,6 @@ TEST_F(IOTest, TestReadVideoToCVMatFromAviResizeAndGrayscale) {
   EXPECT_EQ(cv_imgs[0].rows, 80);
   EXPECT_EQ(cv_imgs[0].cols, 100);
 }
-
+*/
 }  // namespace caffe
 #endif  // USE_OPENCV
