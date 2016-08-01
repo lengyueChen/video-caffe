@@ -30,11 +30,6 @@ void UnpoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       && unpool_param.has_stride_w())
       || (!unpool_param.has_stride_h() && !unpool_param.has_stride_w()))
       << "Stride is stride OR stride_h and stride_w are required.";
-  CHECK((!unpool_param.has_unpool_size() && unpool_param.has_unpool_h()
-      && unpool_param.has_unpool_w())
-      || (unpool_param.has_unpool_size() &&!unpool_param.has_unpool_h()
-      && !unpool_param.has_unpool_w()))
-      << "Unpool is unpool_size OR unpool_h and unpool_w are required.";
 
   if (unpool_param.has_kernel_size()) {
     kernel_h_ = kernel_w_ = unpool_param.kernel_size();
@@ -63,34 +58,19 @@ void UnpoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     CHECK_LT(pad_h_, kernel_h_);
     CHECK_LT(pad_w_, kernel_w_);
   }
-
-  if (unpool_param.has_unpool_size()) {
-    unpooled_height_ = unpooled_width_ = unpool_param.unpool_size();
-  } else if (unpool_param.has_unpool_h() &&
-        unpool_param.has_unpool_w()) {
-    unpooled_height_ = unpool_param.unpool_h();
-    unpooled_width_ = unpool_param.unpool_w();
-  } else {
-    // in this case, you should recompute unpooled_width, height
-    unpooled_height_ = -1;
-    unpooled_width_ = -1;
-  }
 }
 
 template <typename Dtype>
 void UnpoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+  CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
+      << "corresponding to (num, channels, height, width)";
   channels_ = bottom[0]->channels();
   height_ = bottom[0]->height();
   width_ = bottom[0]->width();
 
-  if (unpooled_height_ < 0 || unpooled_width_ < 0) {
-    unpooled_height_ = max((height_ - 1) * stride_h_ + kernel_h_ - 2 * pad_h_,
-                            height_ * stride_h_ - pad_h_ + 1);
-    unpooled_width_ = max((width_ - 1) * stride_w_ + kernel_w_ - 2 * pad_w_,
-                           width_ * stride_w_ - pad_w_ + 1);          
-  }
-
+  unpooled_height_ = static_cast<int>((height_ - 1) * stride_h_ + kernel_h_ - 2 * pad_h_);
+  unpooled_width_ = static_cast<int>((width_ - 1) * stride_w_ + kernel_w_ - 2 * pad_w_);    
   top[0]->Reshape(bottom[0]->num(), channels_, unpooled_height_,
       unpooled_width_);
 }
@@ -104,40 +84,35 @@ void UnpoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* top_data = top[0]->mutable_cpu_data();
   const int top_count = top[0]->count();
   // We'll get the mask from bottom[1] if it's of size >1.
-  const bool use_bottom_mask = bottom.size() > 1;
+  //const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
 
     caffe_set(top_count, Dtype(0), top_data);
     // Initialize
-    if (use_bottom_mask) {
+    //if (use_bottom_mask) {
       bottom_mask = bottom[1]->cpu_data();
-    } 
+    //} 
     // The main loop
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
         for (int ph = 0; ph < height_; ++ph) {
           for (int pw = 0; pw < width_; ++pw) {
-            int uph = max(0,min(ph * stride_h_ - pad_h_, unpooled_height_-1));
-            int upw = max(0,min(pw * stride_w_ - pad_w_, unpooled_width_-1)); 
-	    const int index = ph * width_ + pw;
-            const int unpooled_index = uph * unpooled_width_ + upw; 
-            if (use_bottom_mask) {
-              const int mask_index = bottom_mask[index];
-              top_data[mask_index] = bottom_data[index];
-            } else {
-              top_data[unpooled_index] = bottom_data[index];
-            }
+            
+            //int uph = max(0,min(ph * stride_h_ - pad_h_, unpooled_height_-1));
+            //int upw = max(0,min(pw * stride_w_ - pad_w_, unpooled_width_-1)); 
+	          
+            const int index = ph * width_ + pw;
+            const int mask_index = bottom_mask[index];
+            top_data[mask_index] = bottom_data[index];
+            
           }
         }
         // compute offset
         bottom_data += bottom[0]->offset(0, 1);
         top_data += top[0]->offset(0, 1);
-        if (use_bottom_mask) {
-          bottom_mask += bottom[1]->offset(0, 1);
-        } 
-      }
+        bottom_mask += bottom[1]->offset(0, 1);
     }
-    
+  }
 }
 
 template <typename Dtype>
@@ -154,33 +129,22 @@ void UnpoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   // We'll output the mask to top[1] if it's of size >1.
   const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
-    if (use_bottom_mask) {
-      bottom_mask = bottom[1]->cpu_data();
-    } 
+  bottom_mask = bottom[1]->cpu_data();
     // The main loop
     for (int n = 0; n < top[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
         for (int ph = 0; ph < height_; ++ph) {
           for (int pw = 0; pw < width_; ++pw) {
-            int uph = max(0,min(ph * stride_h_ - pad_h_, unpooled_height_-1));
-            int upw = max(0,min(pw * stride_w_ - pad_w_, unpooled_width_-1)); 
             const int index = ph * width_ + pw;
-            const int unpooled_index = uph * unpooled_width_ + upw; 
-            if (use_bottom_mask) {
-              const int mask_index = bottom_mask[index];
+            const int mask_index = bottom_mask[index];
               bottom_diff[index] = top_diff[mask_index]; 
-            } else {
-              bottom_diff[index] = top_diff[unpooled_index];
             }
           }
         }
         // compute offset
         bottom_diff += bottom[0]->offset(0, 1);
         top_diff += top[0]->offset(0, 1);
-        if (use_bottom_mask) {
-          bottom_mask += bottom[1]->offset(0, 1);
-        } 
-      }
+        bottom_mask += bottom[1]->offset(0, 1);
     }
 }
 
