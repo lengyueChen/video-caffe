@@ -89,22 +89,15 @@ void UnpoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
     caffe_set(top_count, Dtype(0), top_data);
     // Initialize
-    //if (use_bottom_mask) {
       bottom_mask = bottom[1]->cpu_data();
-    //} 
     // The main loop
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
         for (int ph = 0; ph < height_; ++ph) {
           for (int pw = 0; pw < width_; ++pw) {
-            
-            //int uph = max(0,min(ph * stride_h_ - pad_h_, unpooled_height_-1));
-            //int upw = max(0,min(pw * stride_w_ - pad_w_, unpooled_width_-1)); 
-	          
             const int index = ph * width_ + pw;
             const int mask_index = bottom_mask[index];
-            top_data[mask_index] = bottom_data[index];
-            
+            top_data[mask_index] = bottom_data[index];  
           }
         }
         // compute offset
@@ -126,8 +119,6 @@ void UnpoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   // Different unpooling methods. We explicitly do the switch outside the for
   // loop to save time, although this results in more codes.
   caffe_set(bottom[0]->count(), Dtype(0), bottom_diff);
-  // We'll output the mask to top[1] if it's of size >1.
-  const bool use_bottom_mask = bottom.size() > 1;
   const Dtype* bottom_mask = NULL;
   bottom_mask = bottom[1]->cpu_data();
     // The main loop

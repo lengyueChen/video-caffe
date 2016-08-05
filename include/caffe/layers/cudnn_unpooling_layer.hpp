@@ -17,18 +17,18 @@ namespace caffe {
  *        Fallback to UnPoolingLayer for CPU mode.
 */
 template <typename Dtype>
-class CuDNNUnPoolingLayer : public UnPoolingLayer<Dtype> {
+class CuDNNUnpoolingLayer : public UnpoolingLayer<Dtype> {
  public:
-  explicit CuDNNUnPoolingLayer(const LayerParameter& param)
+  explicit CuDNNUnpoolingLayer(const LayerParameter& param)
       : PoolingLayer<Dtype>(param), handles_setup_(false) {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
-  virtual ~CuDNNUnPoolingLayer();
+  virtual ~CuDNNUnpoolingLayer();
   // Currently, cuDNN does not support the extra top blob.
-  virtual inline int MinTopBlobs() const { return -1; }
-  virtual inline int ExactNumTopBlobs() const { return 1; }
+  virtual inline int ExactNumBottomBlobs() const { return 1; }
+  virtual inline int ExactNumTopBlobs() const { return 2; }
 
  protected:
   virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
@@ -46,17 +46,17 @@ class CuDNNUnPoolingLayer : public UnPoolingLayer<Dtype> {
 };
 
 template <typename Dtype>
-class CudnnNdPoolingLayer : public Layer<Dtype> {
+class CudnnNdUnpoolingLayer : public Layer<Dtype> {
  public:
-  explicit CudnnNdPoolingLayer(const LayerParameter& param)
+  explicit CudnnNdUnpoolingLayer(const LayerParameter& param)
       : Layer<Dtype>(param), handles_setup_(false) {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
-  virtual ~CudnnNdPoolingLayer();
+  virtual ~CudnnNdUnpoolingLayer();
 
-  virtual inline const char* type() const { return "NdPooling"; }
+  virtual inline const char* type() const { return "NdUnpooling"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
@@ -77,11 +77,9 @@ class CudnnNdPoolingLayer : public Layer<Dtype> {
   vector<int> pad_shape_;
   int channels_;
   vector<int> input_shape_;
-  vector<int> pooled_shape_;
+  vector<int> unpooled_shape_;
   bool global_pooling_;
   Blob<Dtype> rand_idx_;
-  Blob<int> max_idx_;
-
 
 
   bool handles_setup_;
