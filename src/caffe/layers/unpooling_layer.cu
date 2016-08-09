@@ -12,7 +12,7 @@ __global__ void MaxUnpoolForward(const int nthreads, const Dtype* bottom_data,
     const int num, const int channels, const int height,
     const int width, const int unpooled_height, const int unpooled_width,
     const int kernel_h, const int kernel_w, const int stride_h,
-    const int stride_w, const int pad_h, const int pad_w, Dtype* top_data) {
+    const int stride_w, const int pad_h, const int pad_w, Dtype* top_data, Dtype* bottom_mask) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     int pw = index % width;
     int ph = (index / width) % height;
@@ -38,7 +38,7 @@ void UnpoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     MaxUnpoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, unpooled_height_, unpooled_width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data);
+        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data,bottom_mask);
   CUDA_POST_KERNEL_CHECK;
 }
 
