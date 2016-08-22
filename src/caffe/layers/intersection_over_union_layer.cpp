@@ -1,5 +1,6 @@
 #include <utility>
 #include <vector>
+#include <functional>
 
 #include "caffe/layers/intersection_over_union_layer.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -24,12 +25,14 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
     const vector<Blob<Dtype>*>& top){
 	const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
 	const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
-	const Dtype* top_data = top[0]->mutable_cpu_data();
-	caffe_set(top[0]->count(),Dtype(0),top_data);
+	Dtype* top_data = top[0]->mutable_cpu_data();
 	const int num=bottom[0]->shape(0);
 	const int classes=bottom[0]->shape(1);
 	const int height=bottom[0]->shape(2);
 	const int width=bottom[0]->shape(3);
+
+	caffe_set(top[0]->count(),Dtype(0),top_data);
+	
 	
 	double IUscore = 0.0;
 	// n_ii  number of correctly classified pixels
@@ -43,8 +46,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 
 	for(int i = 0; i < num; ++i){
 		True_positive =0;
-		False_positive=0;
-		Ti = 0;
+		T_i = 0;
 		IUscore=0;
 		for(int c = 0; c < classes; ++c){	
 			True_positive = 0;
@@ -73,7 +75,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			IUscore += True_positive /(T_i + False_negative - True_positive);
 		}
 
-		top_data[i]->mutable_cpu_data()[0] = IUscore / classes;
+		top_data[i] = IUscore / classes;
 		bottom_data += bottom[0]->offset(0,1);
 		bottom_label += bottom[1]->offset(0,1);
 		//increment when complete computing each image
