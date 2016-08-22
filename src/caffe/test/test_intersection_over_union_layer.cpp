@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
-#include "caffe/filler/hpp"
+#include "caffe/filler.hpp"
 #include "caffe/layers/intersection_over_union_layer.hpp"
 #include "caffe/util/rng.hpp"
 
