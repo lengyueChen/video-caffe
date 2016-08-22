@@ -31,7 +31,6 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	const int height=bottom[0]->shape(2);
 	const int width=bottom[0]->shape(3);
 	
-
 	double IUscore = 0.0;
 	// n_ii  number of correctly classified pixels
 	int True_positive = 0;
@@ -59,13 +58,14 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 						True_positive++;
 				}
 			}
+			// ti  total number of pixels in class i
 			// sum of n_ji: total number of pixels of class j predicted to i
 			for(int class_idx=0;class_idx < classes; ++class_idx){
 				for(int pixel_idx=0; pixel_idx < height * width; ++pixel_idx){
 					if (bottom_data[class_idx*classes+pixel_idx] == c)
-						T_i++;
-					if (bottom_label[pixel_idx]==c)
 						False_negative++;
+					if (bottom_label[pixel_idx]==c)
+						T_i++;
 				}
 			}
 			
@@ -73,7 +73,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			IUscore += True_positive /(T_i + False_negative - True_positive);
 		}
 
-		top_data[i] = IUscore / classes;
+		top_data[i]->mutable_cpu_data()[0] = IUscore / classes;
 		bottom_data += bottom[0]->offset(0,1);
 		bottom_label += bottom[1]->offset(0,1);
 		//increment when complete computing each image
@@ -81,9 +81,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 
 }
 
-
 INSTANTIATE_CLASS(IntersectionOverUnionLayer);
 REGISTER_LAYER_CLASS(IntersectionOverUnion);
-
 
 } //namespace caffe
