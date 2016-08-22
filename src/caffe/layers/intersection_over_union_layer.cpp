@@ -34,7 +34,8 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 
 	caffe_set(top[0]->count(),Dtype(0),top_data);
 	
-	
+	LOG(INFO) << "Bottom shape N: " << bottom[0]->shape(0) << " C: "<< bottom[0]->shape(1)<<" H: " << bottom[0]->shape(2)<< " W: " << bottom[0]->shape(3);
+
 	float IUscore = 0.0;
 	// n_ii  number of correctly classified pixels
 	int C_i = 0;
@@ -80,7 +81,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		}
 
 		top_data[n] = IUscore / classes;
-
+		LOG(INFO) << "IUscore: " <<  IUscore;
 		bottom_data += bottom[0]->offset(0,1);
 		bottom_label += bottom[1]->offset(0,1);
 		//increment when complete computing each image
