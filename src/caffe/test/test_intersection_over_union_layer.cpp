@@ -102,7 +102,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	   (--- + --- + ---)/ 3 = 0.32777
 		4-1   5-1   7-2
 	*/
-	EXPECT_NEAR(this->blob_top_->cpu_data()[1], 0.327, 1e-4);
+	EXPECT_NEAR(this->blob_top_->cpu_data()[0], 0.327, 1e-4);
 }
 
 
