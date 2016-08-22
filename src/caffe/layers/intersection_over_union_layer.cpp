@@ -63,10 +63,10 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			}
 			// G_i  total number of pixels whose label is i
 			for(int class_idx = 0; class_idx < classes; ++class_idx){
-				for(int pixel_idx = 0; pixel_idx < height * width; ++pixel_idx){
+				//for(int pixel_idx = 0; pixel_idx < height * width; ++pixel_idx){
 					if (bottom_label[pixel_idx] == i)
 						G_i++;
-				}
+				//}
 			}
 			// P_i: total number of pixels whose prediction is i 
 			for(int class_idx = 0; class_idx < classes; ++class_idx){
