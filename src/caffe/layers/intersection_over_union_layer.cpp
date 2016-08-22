@@ -10,7 +10,7 @@ namespace caffe{
 template <typename Dtype>
 void IntersectionOverUnionLayer<Dtype>::Reshape(
   const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top){
-	CHECK_EQ(bottom[0]->count()/bottom[0]->shape(2), bottom[1]->count())
+	CHECK_EQ(bottom[0]->count()/bottom[0]->shape(1), bottom[1]->count())
 		<< "Number of labels must match number of predictions; "
       	<< "e.g., if prediction shape is (N, C, H, W), "
       	<< "label count (number of labels) must be N*H*W."
