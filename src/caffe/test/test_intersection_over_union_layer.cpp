@@ -56,6 +56,8 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
 TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	LayerParameter layer_param;
 	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
+	this->blob_bottom_data_.Reshape(1,3,2,2);
+	this->blob_bottom_label_.Reshape(1,1,2,2);
 	/* Input : bottom_data 1*3*2*2
 		class 0: [0 1]
 				 [1 2]
