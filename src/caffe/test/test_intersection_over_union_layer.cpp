@@ -68,41 +68,41 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	   			[2 2]
 	*/
 	//class 0
-	blob_bottom_data_->mutable_cpu_data()[0] = 0;
-	blob_bottom_data_->mutable_cpu_data()[1] = 1;
-	blob_bottom_data_->mutable_cpu_data()[2] = 1;
-	blob_bottom_data_->mutable_cpu_data()[3] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[0] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[1] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[2] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[3] = 2;
 	//class 1
-	blob_bottom_data_->mutable_cpu_data()[4] = 2;
-	blob_bottom_data_->mutable_cpu_data()[5] = 0;
-	blob_bottom_data_->mutable_cpu_data()[6] = 1;
-	blob_bottom_data_->mutable_cpu_data()[7] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[4] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[5] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[6] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[7] = 0;
 	//class 2
-	blob_bottom_data_->mutable_cpu_data()[8] = 2;
-	blob_bottom_data_->mutable_cpu_data()[9] = 1;
-	blob_bottom_data_->mutable_cpu_data()[10] = 2;
-	blob_bottom_data_->mutable_cpu_data()[11] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[8] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[9] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[10] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[11] = 2;
 	
 	//label
-	blob_bottom_label_->mutable_cpu_data()[0]= 1;
-	blob_bottom_label_->mutable_cpu_data()[1]= 0;
-	blob_bottom_label_->mutable_cpu_data()[2]= 2;
-	blob_bottom_label_->mutable_cpu_data()[3]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[0]= 1;
+	this->blob_bottom_label_->mutable_cpu_data()[1]= 0;
+	this->blob_bottom_label_->mutable_cpu_data()[2]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[3]= 2;
 
 
 	
 	//test reshape
-	layer.Reshape(blob_bottom_vec_,blob_top_vec_);
+	layer.Reshape(this->blob_bottom_vec_,this->blob_top_vec_);
 
 	//Forward test
-	layer.Forward(blob_bottom_vec_,blob_top_vec_);
+	layer.Forward(this->blob_bottom_vec_,this->blob_top_vec_);
 	
 	/* Expected output: 
 		 1     1     2
 	   (--- + --- + ---)/ 3 = 0.32777
 		4-1   5-1   7-2
 	*/
-	EXPECT_NEAR(blob_top_->cpu_data()[0], 0.327, 1e-4);
+	EXPECT_NEAR(this->blob_top_->cpu_data()[0], 0.327, 1e-4);
 }
 
 
