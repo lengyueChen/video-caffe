@@ -36,46 +36,48 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	
 	double IUscore = 0.0;
 	// n_ii  number of correctly classified pixels
-	int True_positive = 0;
-	// n_ij  number of pixels of class i predicted to j 
-	//int False_positive = 0;
-	// n_ji number of pixels of class j predicted to i
-	int False_negative = 0;
-	// ti  total number of pixels in class i
-	int T_i =0;
+	int C_i = 0;
+	// G_i number of pixels of class j predicted to i
+	int G_i = 0;
+	// P_i  total number of pixels in class i
+	int P_i =0;
 
-	for(int i = 0; i < num; ++i){
-		True_positive =0;
-		T_i = 0;
-		IUscore=0;
-		for(int c = 0; c < classes; ++c){	
-			True_positive = 0;
+	for(int n = 0; n < num; ++n){
+		P_i = 0;
+		IUscore=0.0;
+
+		for(int i = 0; i < classes; ++i){	
+			C_i = 0;
 			
-			// calculate number of correctly classified pixels in class i
+			// calculate number of correctly classified pixels in class i.  C_ii
+			// ground truth pixel = predicted label pixel 
 			for(int h = 0; h < height; ++h){
 				for(int w = 0; w < width; ++w){
-					const int idx = (c * height + h) * width + w;
+					const int idx = (i * height + h) * width + w;
 					const int label_idx = h * width + w;
 					if (bottom_data[idx]==bottom_label[label_idx])
-						True_positive++;
+						C_i++;
 				}
 			}
-			// ti  total number of pixels in class i
-			// sum of n_ji: total number of pixels of class j predicted to i
-			for(int class_idx=0;class_idx < classes; ++class_idx){
-				for(int pixel_idx=0; pixel_idx < height * width; ++pixel_idx){
-					if (bottom_data[class_idx*classes+pixel_idx] == c)
-						False_negative++;
-					if (bottom_label[pixel_idx]==c)
-						T_i++;
+			// G_i  total number of pixels whose label is i
+			for(int class_idx = 0; class_idx < classes; ++class_idx){
+				for(int pixel_idx = 0; pixel_idx < height * width; ++pixel_idx){
+					if (bottom_label[pixel_idx] == i)
+						G_i++;
 				}
 			}
-			
+			// P_i: total number of pixels whose prediction is i 
+			for(int class_idx = 0; class_idx < classes; ++class_idx){
+				for(int pixel_idx = 0; pixel_idx < height * width; ++pixel_idx){
+					if (bottom_data[class_idx * classes + pixel_idx] == i)
+						P_i++;
+				}
+			}
 			//calculate IU for each class
-			IUscore += True_positive /(T_i + False_negative - True_positive);
+			IUscore += C_i /(P_i + G_i - C_i);
 		}
 
-		top_data[i] = IUscore / classes;
+		top_data[n] = IUscore / classes;
 		bottom_data += bottom[0]->offset(0,1);
 		bottom_label += bottom[1]->offset(0,1);
 		//increment when complete computing each image
