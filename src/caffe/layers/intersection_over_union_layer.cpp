@@ -17,6 +17,7 @@ void IntersectionOverUnionLayer<Dtype>::Reshape(
       	<< "bottom[0] N*C*H*W: " << bottom[0]->count()
       	<< "bottom[0] C: " << bottom[0]->count()
       	<< "bottom[1] N*1*H*W: " << bottom[1]->count();
+    CHECK_EQ(bottom[0]->shape(0),top[0]->shape(0))<<"Image number not equal"; 
 }
 
 
