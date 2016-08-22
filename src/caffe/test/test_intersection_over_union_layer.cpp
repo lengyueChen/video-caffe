@@ -27,7 +27,7 @@ protected:
 	    blob_bottom_vec_.push_back(blob_bottom_label_);
 	    blob_top_vec_.push_back(blob_top_);
 	}
-	virtual ~IntersectionOverUnionLayerTest(){
+	~IntersectionOverUnionLayerTest(){
 		delete blob_bottom_data_;
 		delete blob_bottom_label_;
 		delete blob_top_;
@@ -55,6 +55,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
 
 TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	LayerParameter layer_param;
+	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
 	/* Input : bottom_data 1*3*2*2
 		class 0: [0 1]
 				 [1 2]
@@ -66,8 +67,6 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	   			[1 0]
 	   			[2 2]
 	*/
-
-
 	//class 0
 	blob_bottom_data_->mutable_cpu_data()[0] = 0;
 	blob_bottom_data_->mutable_cpu_data()[1] = 1;
@@ -91,7 +90,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	blob_bottom_label_->mutable_cpu_data()[3]= 2;
 
 
-	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
+	
 	//test reshape
 	layer.Reshape(blob_bottom_vec_,blob_top_vec_);
 
