@@ -45,6 +45,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 
 	for(int n = 0; n < num; ++n){
 		P_i = 0;
+		G_i = 0;
 		IUscore=0.0;
 
 		for(int i = 0; i < classes; ++i){	
@@ -70,7 +71,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			// P_i: total number of pixels whose prediction is i 
 			for(int class_idx = 0; class_idx < classes; ++class_idx){
 				for(int pixel_idx = 0; pixel_idx < height * width; ++pixel_idx){
-					if (bottom_data[class_idx * classes + pixel_idx] == i)
+					if (bottom_data[class_idx * height * width + pixel_idx] == i)
 						P_i++;
 				}
 			}
