@@ -10,14 +10,6 @@
 #include "caffe/layers/loss_layer.hpp"
 
 namespace caffe {
-/*
-This function takes the prediction and label of a single image, returns intersection and union areas for each class
- To compute over many images do:
- for i = 1:Nimages
-  [area_intersection(:,i), area_union(:,i)]=intersectionAndUnion(imPred{i}, imLab{i});
- end
- IoU = sum(area_intersection,2)./sum(eps+area_union,2);
-*/
 
 template <typename Dtype>
 class IntersectionOverUnionLayer : public Layer<Dtype> {
@@ -40,10 +32,6 @@ class IntersectionOverUnionLayer : public Layer<Dtype> {
       if (propagate_down[i]) { NOT_IMPLEMENTED; }
     }
   }
-
-  //int label_axis_, outer_num_, inner_num_;
-
-
 
 };
 
