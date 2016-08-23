@@ -47,6 +47,8 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	// P_i: total number of pixels whose prediction is i
 	int P_i = 0;
 
+	std::cout<<
+
 	for (int class_idx = 0; class_idx < classes; class_idx++){
 		C_i=0;
 		G_i=0;
@@ -88,7 +90,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			}
 		}
 		//calculate IU for each class
-		std::cout << "G_i + P_i - C_i"<< G_i + P_i - C_i <<std::endl;
+		std::cout << "G_i + P_i - C_i "<< G_i + P_i - C_i <<std::endl;
 		IUscore += C_i /(G_i + P_i - C_i);
 	}
 
