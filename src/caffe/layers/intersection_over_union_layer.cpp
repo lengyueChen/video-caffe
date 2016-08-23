@@ -86,6 +86,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			}
 		}
 		//calculate IU for each class
+		cout<<"Sum:  "<< G_i + P_i - C_i;
 		IUscore += C_i /(G_i + P_i - C_i);
 	}
 
