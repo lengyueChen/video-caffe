@@ -34,10 +34,10 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	const int height = bottom[0]->height();
 	const int width = bottom[0]->width();
 
-	std::cout<< "Num: "<< bottom[0]->shape(0) << std::endl;
-	std::cout<< "Classes:"<< bottom[0]->shape(1) << std::endl;
-	std::cout<< "Height:"<< bottom[0]->shape(2) << std::endl;
-	std::cout<< "Width:"<< bottom[0]->shape(3) << std::endl;
+	std::cout<< "Num: "<< bottom[0]->num() << std::endl;
+	std::cout<< "Classes:"<< bottom[0]->channels() << std::endl;
+	std::cout<< "Height:"<< bottom[0]->height() << std::endl;
+	std::cout<< "Width:"<< bottom[0]->width() << std::endl;
 	
 
 	float IUscore = 0.0;
