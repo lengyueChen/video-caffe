@@ -58,7 +58,12 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
   EXPECT_EQ(this->blob_bottom_label_->num(),2);
   EXPECT_EQ(this->blob_bottom_label_->channels(),1);
   EXPECT_EQ(this->blob_bottom_label_->height(),2);
-  EXPECT_EQ(this0>blob_bottom_label_->width(),2);
+  EXPECT_EQ(this->blob_bottom_label_->width(),2);
+
+  std::cout<< this->blob_bottom_data_->num() << std::endl;
+  std::cout<< this->blob_bottom_data_->channels()<< std::endl;
+  std::cout<< this->blob_bottom_data_->height() << std::endl;
+  std::cout<< this->blob_bottom_data_->width()<< std::endl;
 
   //check top
   EXPECT_EQ(this->blob_top_->num(), 1);
