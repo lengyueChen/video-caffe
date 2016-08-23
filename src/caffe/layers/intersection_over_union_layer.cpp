@@ -3,6 +3,7 @@
 #include <functional>
 #include <cfloat>
 #include <iostream>
+#include <cstdio>
 
 #include "caffe/layers/intersection_over_union_layer.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -87,7 +88,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			}
 		}
 		//calculate IU for each class
-		cout<<"Sum:  "<< G_i + P_i - C_i;
+		std::cout << "G_i + P_i - C_i"<< G_i + P_i - C_i <<std::endl;
 		IUscore += C_i /(G_i + P_i - C_i);
 	}
 
