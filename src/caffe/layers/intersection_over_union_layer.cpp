@@ -80,7 +80,6 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			for(int h = 0; h < height; ++h){
 				for(int w = 0; w < width; ++w){
 					const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
-					const int label_idx = (n * height + h) * width + w;
 					if(bottom_data[pred_idx]==1)
 						P_i++;
 				}
@@ -90,7 +89,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		IUscore += C_i /(G_i + P_i - C_i);
 	}
 
-	top_data = IUscore / classes;
+	top_data[0] = IUscore / classes;
 }
 		
 
