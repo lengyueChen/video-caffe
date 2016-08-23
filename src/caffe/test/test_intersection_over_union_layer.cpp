@@ -15,8 +15,8 @@ template <typename Dtype>
 class IntersectionOverUnionLayerTest : public CPUDeviceTest<Dtype>{
 protected:
 	IntersectionOverUnionLayerTest()
-	:	blob_bottom_data_(new Blob<Dtype>(1,3,2,2)),
-		blob_bottom_label_(new Blob<Dtype>(1,1,2,2)),
+	:	blob_bottom_data_(new Blob<Dtype>(2,3,2,2)),
+		blob_bottom_label_(new Blob<Dtype>(2,1,2,2)),
 		blob_top_(new Blob<Dtype>(1,1,1,1)){
 		//fill values	
 		FillerParameter filler_param;
@@ -56,55 +56,90 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
 TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	LayerParameter layer_param;
 	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
-	this->blob_bottom_data_.Reshape(1,3,2,2);
-	this->blob_bottom_label_.Reshape(1,1,2,2);
-	/* Input : bottom_data 1*3*2*2
-		class 0: [0 1]
-				 [1 2]
-		class 1: [2 0]
-				 [1 0]
-		class 2: [2 1]
-				 [2 2]		
-	   Input : bottom_label 1*1*2*2
-	   			[1 0]
-	   			[2 2]
+	/* Input : bottom_data 2*3*2*2
+		image 0: 
+		class0	[1         -FLT_MAX]
+				[-FLT_MAX  -FLT_MAX]
+
+		class1	[-FLT_MAX 	      1]
+				[1		   -FLT_MAX]
+
+		class2	[-FLT_MAX  -FLT_MAX]
+				[-FLT_MAX         1]
+		
+		image 1:
+		class0	[-FLT_MAX         1]
+				[-FLT_MAX         1]
+		
+		class1 	[-FLT_MAX  -FLT_MAX]
+				[1         -FLT_MAX]
+
+		class2  [1         -FLT_MAX]
+				[-FLT_MAX  -FLT_MAX]
+
+		Input : bottom_label 2*1*2*2
+	   	image 0: [1 	0]
+	   			 [2 	2]
+	   	image 1: [2 	0]
+				 [1 	2]
+		
 	*/
+	//prediction
+	//image 0
 	//class 0
-	this->blob_bottom_data_->mutable_cpu_data()[0] = 0;
-	this->blob_bottom_data_->mutable_cpu_data()[1] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[2] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[3] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[0] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[1] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[2] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[3] = -FLT_MAX;
 	//class 1
-	this->blob_bottom_data_->mutable_cpu_data()[4] = 2;
-	this->blob_bottom_data_->mutable_cpu_data()[5] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[4] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[5] = 1;
 	this->blob_bottom_data_->mutable_cpu_data()[6] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[7] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[7] = -FLT_MAX;
 	//class 2
-	this->blob_bottom_data_->mutable_cpu_data()[8] = 2;
-	this->blob_bottom_data_->mutable_cpu_data()[9] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[10] = 2;
-	this->blob_bottom_data_->mutable_cpu_data()[11] = 2;
+	this->blob_bottom_data_->mutable_cpu_data()[8] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[9] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[10] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[11] = 1;
+
+	//image 1
+	//class 0
+	this->blob_bottom_data_->mutable_cpu_data()[12] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[13] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[14] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[15] = -FLT_MAX;
+	//class 1
+	this->blob_bottom_data_->mutable_cpu_data()[16] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[17] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[18] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[19] = -FLT_MAX;
+	//class 2
+	this->blob_bottom_data_->mutable_cpu_data()[20] = 1;
+	this->blob_bottom_data_->mutable_cpu_data()[21] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[22] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[23] = -FLT_MAX;
 	
 	//label
+	//image 0
 	this->blob_bottom_label_->mutable_cpu_data()[0]= 1;
 	this->blob_bottom_label_->mutable_cpu_data()[1]= 0;
 	this->blob_bottom_label_->mutable_cpu_data()[2]= 2;
 	this->blob_bottom_label_->mutable_cpu_data()[3]= 2;
-
+	//image 1
+	this->blob_bottom_label_->mutable_cpu_data()[4]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[5]= 0;
+	this->blob_bottom_label_->mutable_cpu_data()[6]= 1;
+	this->blob_bottom_label_->mutable_cpu_data()[7]= 2;
+    
 
 	
-	//test reshape
-	layer.Reshape(this->blob_bottom_vec_,this->blob_top_vec_);
-
 	//Forward test
 	layer.Forward(this->blob_bottom_vec_,this->blob_top_vec_);
 	
 	/* Expected output: 
-		 1     1     2
-	   (--- + --- + ---)/ 3 = 0.32777
-		4-1   5-1   7-2
+
 	*/
-	EXPECT_NEAR(this->blob_top_->cpu_data()[0], 0.327, 1e-4);
+	EXPECT_NEAR(this->blob_top_->cpu_data()[0], 0, 1e-4);
 }
 
 
