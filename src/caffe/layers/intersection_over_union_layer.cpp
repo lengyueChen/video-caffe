@@ -2,6 +2,7 @@
 #include <vector>
 #include <functional>
 #include <cfloat>
+#include <iostream>
 
 #include "caffe/layers/intersection_over_union_layer.hpp"
 #include "caffe/util/math_functions.hpp"
