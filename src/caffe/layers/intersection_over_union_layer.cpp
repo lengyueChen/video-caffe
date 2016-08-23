@@ -46,8 +46,10 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	int G_i = 0;
 	// P_i: total number of pixels whose prediction is i
 	int P_i = 0;
-
-	std::cout<<
+	for(int i = 0; i< 24; i++){
+		std::cout<< "prediction labels:"<< std::endl;
+		std::cout<< bottom_data[i] << " ";
+	}
 
 	for (int class_idx = 0; class_idx < classes; class_idx++){
 		C_i=0;
