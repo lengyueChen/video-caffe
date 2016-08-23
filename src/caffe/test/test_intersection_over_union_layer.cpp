@@ -47,7 +47,20 @@ TYPED_TEST_CASE(IntersectionOverUnionLayerTest, TestDtypes);
 TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
   LayerParameter layer_param;
   IntersectionOverUnionLayer<TypeParam> layer(layer_param);
+  
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
+  // check bottom[0]
+  EXPECT_EQ(this->blob_bottom_data_->num(),2);
+  EXPECT_EQ(this->blob_bottom_data_->channels(),3);  
+  EXPECT_EQ(this->blob_bottom_data_->height(),2);
+  EXPECT_EQ(this->blob_bottom_data_->width(),2);
+  //check bottom[1]
+  EXPECT_EQ(this->blob_bottom_label_->num(),2);
+  EXPECT_EQ(this->blob_bottom_label_->channels(),1);
+  EXPECT_EQ(this->blob_bottom_label_->height(),2);
+  EXPECT_EQ(this0>blob_bottom_label_->width(),2);
+
+  //check top
   EXPECT_EQ(this->blob_top_->num(), 1);
   EXPECT_EQ(this->blob_top_->channels(), 1);
   EXPECT_EQ(this->blob_top_->height(), 1);
