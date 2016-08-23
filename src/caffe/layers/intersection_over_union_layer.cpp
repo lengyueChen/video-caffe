@@ -29,10 +29,10 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
 	const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
 	Dtype* top_data = top[0]->mutable_cpu_data();
-	const int num = bottom[0]->shape(0);
-	const int classes = bottom[0]->shape(1);
-	const int height = bottom[0]->shape(2);
-	const int width = bottom[0]->shape(3);
+	const int num = bottom[0]->num();
+	const int classes = bottom[0]->channels();
+	const int height = bottom[0]->height();
+	const int width = bottom[0]->width();
 
 	std::cout<< "Num: "<< bottom[0]->shape(0) << std::endl;
 	std::cout<< "Classes:"<< bottom[0]->shape(1) << std::endl;
