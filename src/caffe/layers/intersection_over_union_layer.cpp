@@ -34,10 +34,11 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	const int height = bottom[0]->shape(2);
 	const int width = bottom[0]->shape(3);
 
-	//CHECK_EQ(bottom[0]->shape(0),1);
-	//CHECK_EQ(bottom[0]->shape(1),3);
-	//CHECK_EQ(bottom[0]->shape(2),2);
-	//CHECK_EQ(bottom[0]->shape(3),2);
+	std::cout<< "Num: "<< bottom[0]->shape(0) << std::endl;
+	std::cout<< "Classes:"<< bottom[0]->shape(1) << std::endl;
+	std::cout<< "Height:"<< bottom[0]->shape(2) << std::endl;
+	std::cout<< "Width:"<< bottom[0]->shape(3) << std::endl;
+	
 
 	float IUscore = 0.0;
 	// C_i  number of correctly classified pixels in class i. 
@@ -46,6 +47,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 	int G_i = 0;
 	// P_i: total number of pixels whose prediction is i
 	int P_i = 0;
+
 	std::cout<< "prediction labels:"<< std::endl;
 	for(int i = 0; i< 24; i++){
 		std::cout<< bottom_data[i] << " ";
