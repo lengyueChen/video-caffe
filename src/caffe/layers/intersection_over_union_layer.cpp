@@ -60,9 +60,9 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		G_i=0;
 		P_i=0;
 		//calculate C_i
-		for(int n = 0; n < num; ++n){
-			for(int h = 0; h < height; ++h){
-				for(int w = 0; w < width; ++w){
+		for(int n = 0; n < num; n++){
+			for(int h = 0; h < height; h++){
+				for(int w = 0; w < width; w++){
 					const int label_idx = (n * height + h) * width + w;
 					const int temp_class_idx = bottom_label[label_idx];
 					int pred_idx = ((n * classes + temp_class_idx) * height + h) * width + w;
@@ -73,10 +73,10 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		}
 		//calculate G_i. 
 		// prediction in all class,  ground truth in class_idx
-		for(int n = 0; n < num;++n){
+		for(int n = 0; n < num;n++){
 			for(int i = 0 ; i < classes; i++){
-				for(int h = 0; h < height; ++h){
-					for(int w = 0; w < width; ++w){
+				for(int h = 0; h < height; h++){
+					for(int w = 0; w < width; w++){
 						const int pred_idx = ((n * classes + i) * height + h) * width + w;
 						const int label_idx = (n * height + h) * width + w;
 						if (bottom_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx)
@@ -87,9 +87,9 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		}
 		//calculate P_i
 		//predicting class_idx, ground truth in all class
-		for(int n = 0; n < num;++n){
-			for(int h = 0; h < height; ++h){
-				for(int w = 0; w < width; ++w){
+		for(int n = 0; n < num;n++){
+			for(int h = 0; h < height; h++){
+				for(int w = 0; w < width; w++){
 					const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
 					if(bottom_data[pred_idx]==1)
 						P_i++;
@@ -97,7 +97,10 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 			}
 		}
 		//calculate IU for each class
-		std::cout << "G_i + P_i - C_i "<< G_i + P_i - C_i <<std::endl;
+		std::cout << "C_i:"<< C_i <<std::endl;
+		std::cout << "G_i: "<< G_i <<std::endl;
+		std::cout << "P_i: "<< P_i <<std::endl;
+		
 		IUscore += C_i /(G_i + P_i - C_i);
 	}
 	std::cout << "IUscore : " << IUscore << std::endl;
