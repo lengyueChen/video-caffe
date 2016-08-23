@@ -155,8 +155,6 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	//Forward test
 	layer.Forward(this->blob_bottom_vec_,this->blob_top_vec_);
 	
-	//std::cout<<
-
 	/* Expected output: 
 	
 	*/
