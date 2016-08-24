@@ -78,7 +78,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 							G_i++;
 					}
 				}
-				std::cout<<std::endl;
+				//std::cout<<std::endl;
 			}
 		}
 		//calculate P_i
@@ -89,27 +89,27 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 					for(int w = 0; w < width; w++){
 						const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
 						const int label_idx = (n * height + h) * width + w;
-						std::cout << "pred_idx: "<< pred_idx << std::endl;
-							std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
-							std::cout << "bottom_label: "<< bottom_label[label_idx] << std::endl;
+						//std::cout << "pred_idx: "<< pred_idx << std::endl;
+							//std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
+							//std::cout << "bottom_label: "<< bottom_label[label_idx] << std::endl;
 						if(bottom_data[pred_idx]==1 && bottom_label[label_idx] == i){
 							P_i++;
-							std::cout << "TRUE" << std::endl;
+							//std::cout << "TRUE" << std::endl;
 						}
 					}
 				}
 			}
 		}
 		//calculate IU for each class
-		std::cout << "C_i:"<< C_i <<std::endl;
-		std::cout << "G_i: "<< G_i <<std::endl;
-		std::cout << "P_i: "<< P_i <<"\n"<<std::endl;
+		//std::cout << "C_i:"<< C_i <<std::endl;
+		//std::cout << "G_i: "<< G_i <<std::endl;
+		//std::cout << "P_i: "<< P_i <<"\n"<<std::endl;
 		
 		IUscore +=  (float)C_i/(G_i + P_i - C_i);
 	}
 	
 	top_data[0] = IUscore / classes;
-	std::cout<<top_data[0]<<std::endl;
+	//std::cout<<top_data[0]<<std::endl;
 }
 		
 
