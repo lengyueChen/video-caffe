@@ -106,8 +106,9 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		std::cout << "P_i: "<< P_i <<"\n"<<std::endl;
 		
 		IUscore += C_i /(G_i + P_i - C_i);
+		std::cout << "IUscore : " << IUscore << std::endl;
 	}
-	std::cout << "IUscore : " << IUscore << std::endl;
+	
 	top_data[0] = IUscore / classes;
 }
 		
