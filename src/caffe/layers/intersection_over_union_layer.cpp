@@ -90,14 +90,15 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 						const int label_idx = (n * height + h) * width + w;
 						std::cout << "pred_idx: "<< pred_idx << std::endl;
 							std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
-						if(bottom_label[label_idx] == class_idx){
 							if(bottom_data[pred_idx]==1){
-								P_i++;
-								std::cout << "TRUE" << std::endl;
+								if(bottom_label[label_idx] == class_idx){
+									P_i++;
+									std::cout << "TRUE" << std::endl;
 							}
 						}
 					}
 				}
+				std::cout<<std::endl;
 			}
 		}
 		//calculate IU for each class
