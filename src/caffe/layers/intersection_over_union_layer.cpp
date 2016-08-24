@@ -74,11 +74,8 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 					for(int w = 0; w < width; w++){
 						const int pred_idx = ((n * classes + i) * height + h) * width + w;
 						const int label_idx = (n * height + h) * width + w;
-						std::cout << "pred_idx: "<< pred_idx << std::endl;
-						std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
-						if (bottom_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx){
-							std::cout << "TRUE" << std::endl;
-							G_i++;}
+						if (bottom_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx)
+							G_i++;
 					}
 				}
 				std::cout<<std::endl;
@@ -91,8 +88,14 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 				for(int w = 0; w < width; w++){
 					const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
 					const int label_idx = (n * height + h) * width + w;
-					if(bottom_data[pred_idx]==1 && bottom_label[label_idx] == class_idx)
-						P_i++;
+					std::cout << "pred_idx: "<< pred_idx << std::endl;
+						std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
+					if(bottom_label[label_idx] == class_idx){
+						if(bottom_data[pred_idx]==1){
+							P_i++;
+							std::cout << "TRUE" << std::endl;
+						}
+					}
 				}
 			}
 		}
