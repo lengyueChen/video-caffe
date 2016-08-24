@@ -79,9 +79,9 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 						if (bottom_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx){
 							std::cout << "TRUE" << std::endl;
 							G_i++;}
-						std::cout<<std::endl;
 					}
 				}
+				std::cout<<std::endl;
 			}
 		}
 		//calculate P_i
