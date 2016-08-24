@@ -59,12 +59,6 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
   EXPECT_EQ(this->blob_bottom_label_->channels(),1);
   EXPECT_EQ(this->blob_bottom_label_->height(),2);
   EXPECT_EQ(this->blob_bottom_label_->width(),2);
-
-  std::cout<< this->blob_bottom_data_->num() << std::endl;
-  std::cout<< this->blob_bottom_data_->channels()<< std::endl;
-  std::cout<< this->blob_bottom_data_->height() << std::endl;
-  std::cout<< this->blob_bottom_data_->width()<< std::endl;
-
   //check top
   EXPECT_EQ(this->blob_top_->num(), 1);
   EXPECT_EQ(this->blob_top_->channels(), 1);
@@ -75,7 +69,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestSetup) {
 TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	LayerParameter layer_param;
 	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
-	/* Input : bottom_data 2*3*2*2
+	/* Input : prediction 2*3*2*2
 		image 0: 
 		class0	[1         -FLT_MAX]
 				[-FLT_MAX  -FLT_MAX]
@@ -85,6 +79,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 
 		class2	[-FLT_MAX  -FLT_MAX]
 				[-FLT_MAX         1]
+
 		
 		image 1:
 		class0	[-FLT_MAX         1]
@@ -95,8 +90,8 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 
 		class2  [1         -FLT_MAX]
 				[-FLT_MAX  -FLT_MAX]
-
-		Input : bottom_label 2*1*2*2
+-------------------------------------
+		Input :  ground truth 2*1*2*2
 	   	image 0: [1 	0]
 	   			 [2 	2]
 	   	image 1: [2 	0]
