@@ -95,7 +95,6 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 							P_i++;
 							std::cout << "TRUE" << std::endl;
 						}
-						}
 					}
 				}
 			}
