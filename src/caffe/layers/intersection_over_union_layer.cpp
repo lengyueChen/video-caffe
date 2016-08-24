@@ -79,6 +79,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 						if (bottom_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx){
 							std::cout << "TRUE" << std::endl;
 							G_i++;}
+						std::cout<<std::endl;
 					}
 				}
 			}
@@ -98,7 +99,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		//calculate IU for each class
 		std::cout << "C_i:"<< C_i <<std::endl;
 		std::cout << "G_i: "<< G_i <<std::endl;
-		std::cout << "P_i: "<< P_i <<std::endl;
+		std::cout << "P_i: "<< P_i <<"\n"<<std::endl;
 		
 		IUscore += C_i /(G_i + P_i - C_i);
 	}
