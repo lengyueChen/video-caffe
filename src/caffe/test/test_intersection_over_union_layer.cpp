@@ -151,9 +151,19 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	layer.Forward(this->blob_bottom_vec_,this->blob_top_vec_);
 	
 	/* Expected output: 
-	
+	C_00: 1
+	G_0:  2
+	P_0:  3
+
+	C_11: 1
+	G_1:  2
+	P_1:  3
+
+	C_22: 2
+	G_2:  4
+	P_2:  2
 	*/
-	//EXPECT_NEAR(this->blob_top_->cpu_data()[0], 0, 1e-4);
+	EXPECT_NEAR(this->blob_top_->cpu_data()[0], 1/3, 1e-4);
 }
 
 
