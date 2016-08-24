@@ -163,7 +163,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	G_2:  4
 	P_2:  2
 	*/
-	EXPECT_NEAR(this->blob_top_->cpu_data()[0], 1/3, 1e-4);
+	EXPECT_NEAR(this->blob_top_->cpu_data()[0], (float)1/3, 1e-4);
 }
 
 
