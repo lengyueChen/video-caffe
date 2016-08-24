@@ -78,22 +78,23 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 							G_i++;
 					}
 				}
-				std::cout<<std::endl;
 			}
 		}
 		//calculate P_i
 		//predicting class_idx, ground truth in all class
 		for(int n = 0; n < num;n++){
-			for(int h = 0; h < height; h++){
-				for(int w = 0; w < width; w++){
-					const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
-					const int label_idx = (n * height + h) * width + w;
-					std::cout << "pred_idx: "<< pred_idx << std::endl;
-						std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
-					if(bottom_label[label_idx] == class_idx){
-						if(bottom_data[pred_idx]==1){
-							P_i++;
-							std::cout << "TRUE" << std::endl;
+			for(int i =0; i< classes;i++){
+				for(int h = 0; h < height; h++){
+					for(int w = 0; w < width; w++){
+						const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
+						const int label_idx = (n * height + h) * width + w;
+						std::cout << "pred_idx: "<< pred_idx << std::endl;
+							std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
+						if(bottom_label[label_idx] == class_idx){
+							if(bottom_data[pred_idx]==1){
+								P_i++;
+								std::cout << "TRUE" << std::endl;
+							}
 						}
 					}
 				}
