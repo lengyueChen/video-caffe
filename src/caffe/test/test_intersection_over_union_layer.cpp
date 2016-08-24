@@ -120,8 +120,8 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	//class 0
 	this->blob_bottom_data_->mutable_cpu_data()[12] = -FLT_MAX;
 	this->blob_bottom_data_->mutable_cpu_data()[13] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[14] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[15] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[14] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[15] = 1;
 	//class 1
 	this->blob_bottom_data_->mutable_cpu_data()[16] = -FLT_MAX;
 	this->blob_bottom_data_->mutable_cpu_data()[17] = -FLT_MAX;
