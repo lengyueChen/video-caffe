@@ -94,7 +94,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 		Input :  ground truth 2*1*2*2
 	   	image 0:
 	   			[2 	    1]
-	   			[0 	 	3]
+	   			[3 	 	3]
 	   	image 1: 
 	   			[3 		1]
 				[2 		3]
@@ -139,7 +139,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	//image 0
 	this->blob_bottom_label_->mutable_cpu_data()[0]= 2;
 	this->blob_bottom_label_->mutable_cpu_data()[1]= 1;
-	this->blob_bottom_label_->mutable_cpu_data()[2]= 0;
+	this->blob_bottom_label_->mutable_cpu_data()[2]= 3;
 	this->blob_bottom_label_->mutable_cpu_data()[3]= 3;
 	//image 1
 	this->blob_bottom_label_->mutable_cpu_data()[4]= 3;
