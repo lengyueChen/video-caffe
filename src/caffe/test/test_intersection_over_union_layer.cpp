@@ -71,33 +71,33 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
 	/* Input : prediction 2*3*2*2
 		image 0: 
-		class0	[1  	0]
+		class1	[1  	0]
 				[0      0]
 
-		class1	[0 	    1]
+		class2	[0 	    1]
 				[1		0]
 
-		class2	[0      0]
+		class3	[0      0]
 				[0      1]
 
 		
 		image 1:
-		class0	[0      1]
+		class1	[0      1]
 				[0      1]
 		
-		class1 	[0      0]
+		class2 	[0      0]
 				[1      0]
 
-		class2  [1      0]
+		class3  [1      0]
 				[0      0]
 -------------------------------------
 		Input :  ground truth 2*1*2*2
 	   	image 0:
-	   			[1 	    0]
-	   			[2 	 	2]
+	   			[2 	    1]
+	   			[0 	 	3]
 	   	image 1: 
-	   			[2 		0]
-				[1 		2]
+	   			[3 		1]
+				[2 		3]
 		
 	*/
 	//prediction
@@ -137,15 +137,15 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	
 	//label
 	//image 0
-	this->blob_bottom_label_->mutable_cpu_data()[0]= 1;
-	this->blob_bottom_label_->mutable_cpu_data()[1]= 0;
-	this->blob_bottom_label_->mutable_cpu_data()[2]= 2;
-	this->blob_bottom_label_->mutable_cpu_data()[3]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[0]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[1]= 1;
+	this->blob_bottom_label_->mutable_cpu_data()[2]= 0;
+	this->blob_bottom_label_->mutable_cpu_data()[3]= 3;
 	//image 1
-	this->blob_bottom_label_->mutable_cpu_data()[4]= 2;
-	this->blob_bottom_label_->mutable_cpu_data()[5]= 0;
-	this->blob_bottom_label_->mutable_cpu_data()[6]= 1;
-	this->blob_bottom_label_->mutable_cpu_data()[7]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[4]= 3;
+	this->blob_bottom_label_->mutable_cpu_data()[5]= 1;
+	this->blob_bottom_label_->mutable_cpu_data()[6]= 2;
+	this->blob_bottom_label_->mutable_cpu_data()[7]= 3;
     
 
 	
