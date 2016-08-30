@@ -71,67 +71,69 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestForward){
 	IntersectionOverUnionLayer<TypeParam> layer(layer_param);
 	/* Input : prediction 2*3*2*2
 		image 0: 
-		class0	[1         -FLT_MAX]
-				[-FLT_MAX  -FLT_MAX]
+		class0	[1  	0]
+				[0      0]
 
-		class1	[-FLT_MAX 	      1]
-				[1		   -FLT_MAX]
+		class1	[0 	    1]
+				[1		0]
 
-		class2	[-FLT_MAX  -FLT_MAX]
-				[-FLT_MAX         1]
+		class2	[0      0]
+				[0      1]
 
 		
 		image 1:
-		class0	[-FLT_MAX         1]
-				[-FLT_MAX         1]
+		class0	[0      1]
+				[0      1]
 		
-		class1 	[-FLT_MAX  -FLT_MAX]
-				[1         -FLT_MAX]
+		class1 	[0      0]
+				[1      0]
 
-		class2  [1         -FLT_MAX]
-				[-FLT_MAX  -FLT_MAX]
+		class2  [1      0]
+				[0      0]
 -------------------------------------
 		Input :  ground truth 2*1*2*2
-	   	image 0: [1 	0]
-	   			 [2 	2]
-	   	image 1: [2 	0]
-				 [1 	2]
+	   	image 0:
+	   			[1 	    0]
+	   			[2 	 	2]
+	   	image 1: 
+	   			[2 		0]
+				[1 		2]
 		
 	*/
 	//prediction
 	//image 0
 	//class 0
 	this->blob_bottom_data_->mutable_cpu_data()[0] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[1] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[2] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[3] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[1] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[2] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[3] = 0;
 	//class 1
-	this->blob_bottom_data_->mutable_cpu_data()[4] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[4] = 0;
 	this->blob_bottom_data_->mutable_cpu_data()[5] = 1;
 	this->blob_bottom_data_->mutable_cpu_data()[6] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[7] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[7] = 0;
 	//class 2
-	this->blob_bottom_data_->mutable_cpu_data()[8] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[9] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[10] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[8] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[9] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[10] = 0;
 	this->blob_bottom_data_->mutable_cpu_data()[11] = 1;
 
 	//image 1
 	//class 0
-	this->blob_bottom_data_->mutable_cpu_data()[12] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[12] = 0;
 	this->blob_bottom_data_->mutable_cpu_data()[13] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[14] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[14] = 0;
 	this->blob_bottom_data_->mutable_cpu_data()[15] = 1;
 	//class 1
-	this->blob_bottom_data_->mutable_cpu_data()[16] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[17] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[16] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[17] = 0;
 	this->blob_bottom_data_->mutable_cpu_data()[18] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[19] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[19] = 0;
 	//class 2
 	this->blob_bottom_data_->mutable_cpu_data()[20] = 1;
-	this->blob_bottom_data_->mutable_cpu_data()[21] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[22] = -FLT_MAX;
-	this->blob_bottom_data_->mutable_cpu_data()[23] = -FLT_MAX;
+	this->blob_bottom_data_->mutable_cpu_data()[21] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[22] = 0;
+	this->blob_bottom_data_->mutable_cpu_data()[23] = 0;
 	
 	//label
 	//image 0
