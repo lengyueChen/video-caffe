@@ -4,7 +4,7 @@
 
 
 #include "caffe/util/math_functions.hpp"
-#include "caffe/unpooling_layer.hpp"
+#include "caffe/layer/unpooling_layer.hpp"
 
 namespace caffe {
 
