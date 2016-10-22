@@ -205,9 +205,13 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
                         bottom_diff[idx] = gradient_G_i_P_i;
                 }
         }
+
         std::cout<<"done"<<std::endl;
         //test
+        std::cout<<bottom_diff[0]<<std::endl;
+        std::cout<<bottom_diff[1]<<std::endl;
         std::cout<<bottom_diff[2]<<std::endl;
+        std::cout<<bottom_diff[4]<<std::endl;
 
         for (Dtype* i = bottom_diff ; *i ;i++){
                 std::cout<<*i <<std::endl;
