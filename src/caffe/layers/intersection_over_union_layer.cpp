@@ -56,7 +56,7 @@ void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& 
 		for(int n = 0; n < num; n++){
 			for(int h = 0; h < height; h++){
 				for(int w = 0; w < width; w++){
-					const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
+					//const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
 					const int label_idx = (n * height + h) * width + w;
 					//std::cout << "pred_idx: "<< pred_idx << std::endl;
 					//std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
@@ -119,11 +119,11 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
     const vector<Blob<Dtype>*>& bottom){
 
         const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
-        std::cout<<"here???"<<std::endl;
+        
         const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
-        std::cout<<"before"<<std::endl;
+        
         Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-        std::cout<<"beforehhhhh:"<<std::endl;
+        
 
         const int num = top[0]->num();
         const int classes = top[0]->channels();
@@ -137,86 +137,55 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
         std::cout<< "Width:"<< bottom[0]->width() << std::endl;
         */
 
-        float IUscore = 0.0;
+        
         // C_i  number of correctly classified pixels in class i. 
         int C_i = 0;
-        vector<int> ii;
+        
         // G_i  total number of pixels whose label is i
         int G_i = 0;
-        vector<int> ij;
+        
         // P_i: total number of pixels whose prediction is i
         int P_i = 0;
-        vector<int> ji;
+        
 
         for (int class_idx = 0; class_idx < classes; class_idx++){
+        		//label i, predict i
                 C_i=0;
+                vector<int> ii;
+				//label i, predict j
                 G_i=0;
+                vector<int> ij;
+                //label j, predict i
                 P_i=0;
-                //calculate C_i
+                vector<int> ji;
+                
                 for(int n = 0; n < num; n++){
                         for(int h = 0; h < height; h++){
                                 for(int w = 0; w < width; w++){
-                                        const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
+                                        //const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
                                         const int label_idx = (n * height + h) * width + w;
                                         //std::cout << "pred_idx: "<< pred_idx << std::endl;
-                                        std::cout<<"xixi"<<std::endl;
-                                        if(bottom_data[pred_idx]== 1 && bottom_label[label_idx] == class_idx+1) {
-                                                C_i++;
-                                                ii.push_back(pred_idx);
-                                        }
-                                        else{
-                                               bottom_diff[pred_idx] = -2;
+                                        
+                                        if( bottom_data[label_idx] == bottom_label[label_idx] ) {
+
+											C_i++;
+											ii.push_back(label_idx);
                                         }
 
+                                        if( bottom_label[label_idx] == class_idx+1 ) {
+                                        	G_i++;	
+                                        	ij.push_back(label_idx);
+                                        }
 
-                                }
-                        }
-                }
-                //calculate G_i. 
-                // prediction in all class,  ground truth in class_idx
-                for(int n = 0; n < num;n++){
-                        for(int i = 0 ; i < classes; i++){
-                                for(int h = 0; h < height; h++){
-                                        for(int w = 0; w < width; w++){
-                                                const int pred_idx = ((n * classes + i) * height + h) * width + w;
-                                                const int label_idx = (n * height + h) * width + w;
-                                                if (bottom_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx+1){
-                                                        G_i++;
-                                                        ij.push_back(pred_idx);
-                                                }else{
-                                                        if (bottom_diff[pred_idx]==-2)
-                                                                bottom_diff[pred_idx]= -1;
-                                                }
-                                        }
-                                }
-                                //std::cout<<std::endl;
-                        }
-                }
-                //calculate P_i
-                //predicting class_idx, ground truth in all class
-                for(int n = 0; n < num;n++){
-                        for(int i = 0; i < classes;i++){
-                                for(int h = 0; h < height; h++){
-                                        for(int w = 0; w < width; w++){
-                                                const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
-                                                const int label_idx = (n * height + h) * width + w;
-                                                        //std::cout << "pred_idx: "<< pred_idx << std::endl;
-                                                        //std::cout << "bottom_data: " << bottom_data[pred_idx]<< std::endl;
-                                                        //std::cout << "bottom_label: "<< bottom_label[label_idx] << std::endl;
-                                                if(bottom_data[pred_idx]==1 && bottom_label[label_idx] == i+1){
-                                                        P_i++;
-                                                        ji.push_back(pred_idx);
-                                                        //std::cout << "TRUE" << std::endl;
-                                                }
-                                                else{
-                                                        if(bottom_diff[pred_idx]==-1)
-                                                                bottom_diff[pred_idx] = 0;
-                                                }
+                                        if( bottom_data[label_idx] == class_idx+1 ) {
+                                        	P_i++;	
+                                        	ji.push_back(label_idx);
                                         }
                                 }
                         }
                 }
- //calculate IU for each classs
+                
+                
                 int gradient_C_i_constant = (G_i + P_i - 2*C_i);
                 int gradient_C_i =  gradient_C_i_constant/pow(gradient_C_i_constant+C_i,2);
                 int gradient_G_i_P_i = (-1)*C_i/pow(G_i + P_i - C_i,2);
@@ -236,9 +205,9 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
                         bottom_diff[idx] = gradient_G_i_P_i;
                 }
         }
-
+        std::cout<"done"<<std::endl;
         //test
-        std::cout<<bottom_diff[0]<<std::endl;
+        std::cout<<bottom_diff[2]<<std::endl;
 
         for (Dtype* i = bottom_diff ; *i ;i++){
                 std::cout<<*i <<std::endl;
