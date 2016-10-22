@@ -163,8 +163,6 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 						C_i++;
 						ii.push_back(label_idx);
 					}
-						
-						
 				}
 			}
 		}
@@ -179,8 +177,6 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 						if (top_data[pred_idx]== 1 && bottom_label[label_idx]== class_idx+1){
 							G_i++;
 							ij.push_back(label_idx);
-						}
-							
 						}
 					}
 				}
@@ -213,16 +209,19 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 		gradient_C_i =  gradient_C_i_constant/pow(gradient_C_i_constant+C_i,2);
 
 		gradient_G_i_P_i = (-1)*C_i/pow(G_i + P_i - C_i,2);
-		for(int idx: ii){
-			bottom_diff[idx] = gradient_C_i
+		for(int i = 0; i<ii.size();i++ ){
+			int idx = ii[i]
+			bottom_diff[idx] = gradient_C_i;
 		}
 
-		for(int idx:ij){
-			bottom_diff[idx] = gradient_G_i_P_i
+		for(int i = 0; i<ij.size();i++ ){
+			int idx = ij[i]
+			bottom_diff[idx] = gradient_G_i_P_i;
 		}
 
-		for(int idx:ji){
-			bottom_diff[idx] = gradient_G_i_P_i
+		for(int i = 0; i<ji.size();i++ ){
+			int idx = ji[i]
+			bottom_diff[idx] = gradient_G_i_P_i;
 		}		
 
 	}
