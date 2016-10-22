@@ -172,21 +172,15 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestBackward){
         IntersectionOverUnionLayer<TypeParam> layer(layer_param);
         /* Input : prediction 2*3*2*2
                 image 0: 
-                class1  [1      0]
-                        [0      0]
-                class2  [0          1]
-						[1              0]
-                class3  [0      0]
-						[0      1]
+                class1  [2      2]
+                        [1      1]
+       
                 
                 image 1:
-                class1  [0      1]
-						[0      1]
+                class1  [3      1]
+						[2      2]
                 
-                class2  [0      0]
-						[1      0]
-                class3  [1      0]
-						[0      0]
+             
 -------------------------------------
                 Input :  ground truth 2*1*2*2
                 image 0:
@@ -208,10 +202,10 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestBackward){
 
         //image 1
         //class 0
-        this->blob_bottom_data_->mutable_cpu_data()[12] = 3;
-        this->blob_bottom_data_->mutable_cpu_data()[13] = 1;
-        this->blob_bottom_data_->mutable_cpu_data()[14] = 2;
-        this->blob_bottom_data_->mutable_cpu_data()[15] = 2;
+        this->blob_bottom_data_->mutable_cpu_data()[4] = 3;
+        this->blob_bottom_data_->mutable_cpu_data()[5] = 1;
+        this->blob_bottom_data_->mutable_cpu_data()[6] = 2;
+        this->blob_bottom_data_->mutable_cpu_data()[7] = 2;
 
 
         //label

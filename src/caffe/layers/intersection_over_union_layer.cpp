@@ -212,10 +212,6 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
         std::cout<<bottom_diff[1]<<std::endl;
         std::cout<<bottom_diff[2]<<std::endl;
         std::cout<<bottom_diff[4]<<std::endl;
-
-        for (Dtype* i = bottom_diff ; *i ;i++){
-                std::cout<<*i <<std::endl;
-        }
 }
 
 
