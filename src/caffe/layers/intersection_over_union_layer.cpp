@@ -205,10 +205,10 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 		}
 		//calculate IU for each class
 
-		gradient_C_i_constant = (G_i + P_i - 2*C_i);
-		gradient_C_i =  gradient_C_i_constant/pow(gradient_C_i_constant+C_i,2);
+		int gradient_C_i_constant = (G_i + P_i - 2*C_i);
+		int gradient_C_i =  gradient_C_i_constant/pow(gradient_C_i_constant+C_i,2);
 
-		gradient_G_i_P_i = (-1)*C_i/pow(G_i + P_i - C_i,2);
+		int gradient_G_i_P_i = (-1)*C_i/pow(G_i + P_i - C_i,2);
 		for(int i = 0; i<ii.size();i++ ){
 			int idx = ii[i]
 			bottom_diff[idx] = gradient_C_i;
