@@ -139,13 +139,13 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 
         
         // C_i  number of correctly classified pixels in class i. 
-        int C_i = 0;
+        double C_i = 0;
         
         // G_i  total number of pixels whose label is i
-        int G_i = 0;
+        double G_i = 0;
         
         // P_i: total number of pixels whose prediction is i
-        int P_i = 0;
+        double P_i = 0;
         
 
         for (int class_idx = 0; class_idx < classes; class_idx++){
