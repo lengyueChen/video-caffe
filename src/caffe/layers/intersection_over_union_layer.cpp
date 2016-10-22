@@ -186,13 +186,13 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
                 }
                 
                 
-                double gradient_C_i_constant = (G_i + P_i - 2*C_i);
-                double gradient_C_i =  gradient_C_i_constant/(double)(pow(gradient_C_i_constant+C_i,2));
-                double gradient_G_i_P_i = (-1)*C_i/(double)(pow(G_i + P_i - C_i,2));
+                double gradient_C_i_constant = (double)((G_i + P_i - 2*C_i));
+                double gradient_C_i =  gradient_C_i_constant/((double)(pow(gradient_C_i_constant+C_i,2)));
+                double gradient_G_i_P_i = (-1)*C_i/((double)(pow(G_i + P_i - C_i,2)));
 
-                std::cout<<"gradient_C_i_constant"<< gradient_C_i_constant<<std::endl;
-                std::cout<<"gradient_C_i"<< gradient_C_i<<std::endl;
-                std::cout<<"gradient_gradient_G_i_P_iC_i_constant"<<gradient_G_i_P_i <<std::endl;
+                std::cout<<"gradient_C_i_constant "<< gradient_C_i_constant<<std::endl;
+                std::cout<<"gradient_C_i "<< gradient_C_i<<std::endl;
+                std::cout<<"gradient_gradient_G_i_P_iC_i_constant "<<gradient_G_i_P_i <<std::endl;
 
                 for(int i = 0;i < ii.size();i++){
                         int idx = ii[i];
