@@ -235,4 +235,4 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 INSTANTIATE_CLASS(IntersectionOverUnionLayer);
 REGISTER_LAYER_CLASS(IntersectionOverUnion);
 
-} //namespace caffe
+}; //namespace caffe
