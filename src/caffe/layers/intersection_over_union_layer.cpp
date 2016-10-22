@@ -125,10 +125,10 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
         Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
         
 
-        const int num = top[0]->num();
-        const int classes = top[0]->channels();
-        const int height = top[0]->height();
-        const int width = top[0]->width();
+        const int num = bottom[0]->num();
+        const int classes = bottom[0]->channels();
+        const int height = bottom[0]->height();
+        const int width = bottom[0]->width();
 
         /*
         std::cout<< "Num: "<< bottom[0]->num() << std::endl;
