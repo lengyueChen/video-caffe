@@ -485,7 +485,7 @@ message AccuracyParameter {
 }
 
 message IntersectionOverUnionParameter {
-
+  optional int32 num_class = 1 [default = 3];
 
 }
 
