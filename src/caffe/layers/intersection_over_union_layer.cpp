@@ -159,30 +159,28 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
                 P_i=0;
                 vector<int> ji;
                 
-                for(int n = 0; n < num; n++){
-                        for(int h = 0; h < height; h++){
-                                for(int w = 0; w < width; w++){
-                                        //const int pred_idx = ((n * classes + class_idx) * height + h) * width + w;
-                                        const int label_idx = (n * height + h) * width + w;
-                                        //std::cout << "pred_idx: "<< pred_idx << std::endl;
+                for(int idx = 0; n < num; idx++){
+                        
+                                
+                                        //const int label_idx = (n * height + h) * width + w;
                                         
-                                        if( bottom_data[label_idx] == bottom_label[label_idx] ) {
-
+                                        
+                                        if( bottom_data[idx] == bottom_label[idx] ) {
 											C_i++;
-											ii.push_back(label_idx);
+											ii.push_back(idx);
                                         }
 
-                                        if( bottom_label[label_idx] == class_idx ) {
+                                        if( bottom_label[idx] == class_idx ) {
                                         	G_i++;	
-                                        	ij.push_back(label_idx);
+                                        	ij.push_back(idx);
                                         }
 
-                                        if( bottom_data[label_idx] == class_idx ) {
+                                        if( bottom_data[idx] == class_idx ) {
                                         	P_i++;	
-                                        	ji.push_back(label_idx);
+                                        	ji.push_back(idx);
                                         }
-                                }
-                        }
+                        
+                        
                 }
                 
                 std::cout<<"class :"<< class_idx <<std::endl;
