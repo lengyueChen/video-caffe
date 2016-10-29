@@ -186,6 +186,9 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
                 }
                 
                 std::cout<<"class :"<< class_idx <<std::endl;
+				std::cout<<"C_i "<< C_i<<std::endl;
+				std::cout<<"G_i "<< G_i<<std::endl;
+				std::cout<<"P_i "<< P_i<<std::endl;
 
 				double gradient_C_i_constant = (double)((G_i + P_i - 2*C_i));
                 double gradient_C_i =  gradient_C_i_constant/((double)(pow(gradient_C_i_constant+C_i,2)));
