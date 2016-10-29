@@ -177,7 +177,7 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestBackward){
        
                 
                 image 1:
-                class1  [3      1]
+                class1  [0      1]
 						[2      2]
                 
              
@@ -185,10 +185,10 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestBackward){
                 Input :  ground truth 2*1*2*2
                 image 0:
                                 [2          1]
-                                [3          3]
+                                [0          0]
                 image 1: 
-                                [3          1]
-                                [2          3]
+                                [0          1]
+                                [2          0]
                 
         */
         //prediction
@@ -202,23 +202,23 @@ TYPED_TEST(IntersectionOverUnionLayerTest, TestBackward){
 
         //image 1
         //class 0
-        this->blob_bottom_data_->mutable_cpu_data()[4] = 3;
-        this->blob_bottom_data_->mutable_cpu_data()[5] = 1;
-        this->blob_bottom_data_->mutable_cpu_data()[6] = 2;
-        this->blob_bottom_data_->mutable_cpu_data()[7] = 2;
+        // this->blob_bottom_data_->mutable_cpu_data()[4] = 3;
+        // this->blob_bottom_data_->mutable_cpu_data()[5] = 1;
+        // this->blob_bottom_data_->mutable_cpu_data()[6] = 2;
+        // this->blob_bottom_data_->mutable_cpu_data()[7] = 2;
 
 
         //label
         //image 0
         this->blob_bottom_label_->mutable_cpu_data()[0]= 2;
         this->blob_bottom_label_->mutable_cpu_data()[1]= 1;
-        this->blob_bottom_label_->mutable_cpu_data()[2]= 3;
-        this->blob_bottom_label_->mutable_cpu_data()[3]= 3;
+        this->blob_bottom_label_->mutable_cpu_data()[2]= 0;
+        this->blob_bottom_label_->mutable_cpu_data()[3]= 0;
         //image 1
-        this->blob_bottom_label_->mutable_cpu_data()[4]= 3;
-        this->blob_bottom_label_->mutable_cpu_data()[5]= 1;
-        this->blob_bottom_label_->mutable_cpu_data()[6]= 2;
-        this->blob_bottom_label_->mutable_cpu_data()[7]= 3;
+        // this->blob_bottom_label_->mutable_cpu_data()[4]= 3;
+        // this->blob_bottom_label_->mutable_cpu_data()[5]= 1;
+        // this->blob_bottom_label_->mutable_cpu_data()[6]= 2;
+        // this->blob_bottom_label_->mutable_cpu_data()[7]= 3;
 
 
 
