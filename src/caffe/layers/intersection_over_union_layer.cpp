@@ -26,7 +26,7 @@ template <typename Dtype>
 void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top){
 
-	Dtype num_class = this->layer_param.intersection_over_union_param().num_class();
+	Dtype num_class = this->layer_param_.intersection_over_union_param().num_class();
 
 	const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
 	const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
