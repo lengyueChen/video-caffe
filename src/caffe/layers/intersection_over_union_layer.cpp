@@ -121,10 +121,10 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom){
 
-		Dtype num_class = this->layer_param.intersection_over_union_param().num_class();
+		Dtype num_class = this->layer_param_.intersection_over_union_param().num_class();
 
 		std::cout<<"num_class :"<< num_class <<std::endl;
-		
+
         const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
         
         const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
