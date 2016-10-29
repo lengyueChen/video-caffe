@@ -25,6 +25,9 @@ void IntersectionOverUnionLayer<Dtype>::Reshape(
 template <typename Dtype>
 void IntersectionOverUnionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top){
+
+	Dtype num_class = this->layer_param.intersection_over_union_param().num_class();
+
 	const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
 	const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
 	Dtype* top_data = top[0]->mutable_cpu_data();
@@ -118,6 +121,10 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom){
 
+		Dtype num_class = this->layer_param.intersection_over_union_param().num_class();
+
+		std::cout<<"num_class :"<< num_class <<std::endl;
+		
         const Dtype* bottom_data = bottom[0]->mutable_cpu_data();
         
         const Dtype* bottom_label= bottom[1]->mutable_cpu_data();
@@ -126,7 +133,7 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
         
 
         const int num = bottom[0]->num();
-        const int classes = bottom[0]->channels();
+        
         const int height = bottom[0]->height();
         const int width = bottom[0]->width();
 
@@ -148,7 +155,7 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
         double P_i = 0;
         
 
-        for (int class_idx = 0; class_idx < classes; class_idx++){
+        for (int class_idx = 0; class_idx < num_class; class_idx++){
         		//label i, predict i
                 C_i=0;
                 vector<int> ii;
