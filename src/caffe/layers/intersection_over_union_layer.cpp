@@ -172,12 +172,12 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 											ii.push_back(label_idx);
                                         }
 
-                                        if( bottom_label[label_idx] == class_idx+1 ) {
+                                        if( bottom_label[label_idx] == class_idx ) {
                                         	G_i++;	
                                         	ij.push_back(label_idx);
                                         }
 
-                                        if( bottom_data[label_idx] == class_idx+1 ) {
+                                        if( bottom_data[label_idx] == class_idx ) {
                                         	P_i++;	
                                         	ji.push_back(label_idx);
                                         }
@@ -185,8 +185,9 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
                         }
                 }
                 
-                
-                double gradient_C_i_constant = (double)((G_i + P_i - 2*C_i));
+                std::cout<<"class :"<< class_idx <<std::endl;
+
+				double gradient_C_i_constant = (double)((G_i + P_i - 2*C_i));
                 double gradient_C_i =  gradient_C_i_constant/((double)(pow(gradient_C_i_constant+C_i,2)));
                 double gradient_G_i_P_i = (-1)*C_i/((double)(pow(G_i + P_i - C_i,2)));
 
