@@ -163,7 +163,7 @@ void IntersectionOverUnionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>&
 					for(int i = 0; i < height*width;i++){
                                 
                                         //const int label_idx = (n * height + h) * width + w;
-                                        const int idx = i+n*height*width 
+                                        const int idx = i+n*height*width;
                                         
                                         if( bottom_data[idx] == bottom_label[idx] &&bottom_data[idx]==class_idx ) {
 											C_i++;
